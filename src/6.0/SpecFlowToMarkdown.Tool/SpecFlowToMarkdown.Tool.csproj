@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackAsTool>true</PackAsTool>
+        <PackageId>Gman.Siren</PackageId>
+        <ToolCommandName>siren-gen</ToolCommandName>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Description>Siren C# POCO to Mermaid ER markdown generation tool</Description>
+        <RepositoryUrl>https://github.com/gman-au/siren</RepositoryUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.AssemblyLoad\SpecFlowToMarkdown.Infrastructure.AssemblyLoad.csproj" />
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Io\SpecFlowToMarkdown.Infrastructure.Io.csproj"/>
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Mermaid\SpecFlowToMarkdown.Infrastructure.Mermaid.csproj"/>
+    </ItemGroup>
+
+</Project>
