@@ -17,7 +17,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Mermaid
             // Mermaid header
             result
                 .AppendLine(MermaidConstants.MermaidAnchorStart);
-            
+
             // (optional) neutral theme
             result
                 .AppendLine($"\t{MermaidConstants.MermaidNeutralThemeLine}");

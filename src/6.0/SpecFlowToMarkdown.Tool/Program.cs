@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
+using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad;
 using SpecFlowToMarkdown.Infrastructure.Io;
 using SpecFlowToMarkdown.Infrastructure.Mermaid;
@@ -33,7 +34,6 @@ var isASnapshotAssembly = false;
 
 try
 {
-    
 }
 catch (FileNotFoundException)
 {
@@ -41,17 +41,18 @@ catch (FileNotFoundException)
 }
 
 TestExecution testExecution;
+SpecFlowAssembly specFlowAssembly;
 
 Console
     .WriteLine("ModelSnapshot type found in assembly... scanning...");
 
-testExecution =
-    FeatureAssemblyScanner
+specFlowAssembly =
+    AssemblyScanner
         .Perform(assemblyPath);
 
 var result =
     MermaidRenderer
-        .Perform(testExecution);
+        .Perform(null);
 
 FileWriter
     .Perform(

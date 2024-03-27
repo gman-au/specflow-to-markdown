@@ -2,14 +2,14 @@
 
 namespace SpecFlowToMarkdown.Domain.TestAssembly
 {
-    public class SpecFlowFeature
+    public class SpecFlowScenario
     {
-        public string FolderPath { get; set; }
-        
         public string Title { get; set; }
-        
+
         public string Description { get; set; }
+
+        public IEnumerable<string> Tags { get; set; }
         
-        public IEnumerable<SpecFlowScenario> Scenarios { get; set; }
+        public IEnumerable<SpecFlowExecutionStep> Steps { get; set; }
     }
 }
