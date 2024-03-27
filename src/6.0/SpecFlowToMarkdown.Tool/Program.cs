@@ -1,29 +1,28 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
-using SpecFlowToMarkdown.Domain;
-using SpecFlowToMarkdown.Domain.Result;
-using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad;
 using SpecFlowToMarkdown.Infrastructure.Io;
-using SpecFlowToMarkdown.Infrastructure.Mermaid;
+using SpecFlowToMarkdown.Infrastructure.Markdown;
 using SpecFlowToMarkdown.Infrastructure.Parsing;
 
 Console
     .WriteLine("Starting SpecFlowToMarkdown console...");
 
-if (args.Length < 2)
-    throw new Exception("Expected 2 arguments");
+if (args.Length < 3)
+    throw new Exception("Expected 3 arguments");
 
 var assemblyPath = args[0];
 var executionResultsPath = args[1];
-var markdownAnchor = (string)null;
+var outputPath = args[2];
 
 if (string.IsNullOrEmpty(assemblyPath))
     throw new Exception("Assembly path argument invalid");
 
 if (string.IsNullOrEmpty(executionResultsPath))
     throw new Exception("Results path argument invalid");
+
+if (string.IsNullOrEmpty(outputPath))
+    throw new Exception("Output path argument invalid");
 
 try
 {
@@ -45,12 +44,12 @@ var testExecution =
         .Perform(executionResultsPath);
 
 var result =
-    MermaidRenderer
-        .Perform(null);
+    MarkdownRenderer
+        .Perform(specFlowAssembly, testExecution);
 
 FileWriter
     .Perform(
-        executionResultsPath,
+        outputPath,
         result
     );
 

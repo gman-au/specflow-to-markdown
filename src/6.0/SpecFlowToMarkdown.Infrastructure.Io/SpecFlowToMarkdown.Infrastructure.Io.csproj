@@ -5,8 +5,4 @@
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Mermaid\SpecFlowToMarkdown.Infrastructure.Mermaid.csproj"/>
-    </ItemGroup>
-
 </Project>
