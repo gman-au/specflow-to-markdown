@@ -8,11 +8,11 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad
     {
         public static SpecFlowAssembly Perform(string assemblyPath)
         {
-            var assembly = 
+            var assembly =
                 AssemblyDefinition
                     .ReadAssembly(assemblyPath);
 
-            var result = 
+            var result =
                 assembly
                     .ExtractFeatures();
 

@@ -9,7 +9,7 @@ namespace SpecFlowToMarkdown.Domain.TestAssembly
         public string Description { get; set; }
 
         public IEnumerable<string> Tags { get; set; }
-        
+
         public IEnumerable<SpecFlowExecutionStep> Steps { get; set; }
     }
 }

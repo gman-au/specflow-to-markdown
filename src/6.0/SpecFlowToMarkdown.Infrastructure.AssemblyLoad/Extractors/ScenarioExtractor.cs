@@ -8,9 +8,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {
     public static class ScenarioExtractor
     {
+        private const string FeatureInfoTypeName = "TechTalk.SpecFlow.ScenarioInfo";
         private static readonly string[] CustomTestAttributeValues = { "NUnit.Framework.TestAttribute" };
         private static readonly string[] ScenarioStepFunctions = { "And", "Given", "When", "Then" };
-        private const string FeatureInfoTypeName = "TechTalk.SpecFlow.ScenarioInfo";
 
         public static IEnumerable<SpecFlowScenario> ExtractScenarios(this TypeDefinition type)
         {
@@ -28,11 +28,10 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                 )
                     ))
                 {
-
                     // Extract Scenario
                     var title = string.Empty;
                     var description = string.Empty;
-                    
+
                     foreach (var instruction in
                              method
                                  .Body
@@ -65,7 +64,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                             }
                         }
                     }
-                    
+
                     var scenario = new SpecFlowScenario
                     {
                         Title = title,
@@ -75,7 +74,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                     // Extract Steps
                     var scenarioSteps = new List<SpecFlowExecutionStep>();
-                    
+
                     foreach (var instruction in
                              method
                                  .Body
@@ -98,7 +97,10 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                                 if (currInstr.OpCode == OpCodes.Ldstr)
                                 {
-                                    text = currInstr.Operand.ToString();
+                                    text =
+                                        currInstr
+                                            .Operand
+                                            .ToString();
                                 }
 
                                 var executionStep = new SpecFlowExecutionStep
@@ -106,15 +108,17 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                     Keyword = keyword,
                                     Text = text
                                 };
-                                
-                                scenarioSteps.Add(executionStep);
+
+                                scenarioSteps
+                                    .Add(executionStep);
                             }
                         }
                     }
 
                     scenario.Steps = scenarioSteps;
-                    
-                    results.Add(scenario);
+
+                    results
+                        .Add(scenario);
                 }
             }
 

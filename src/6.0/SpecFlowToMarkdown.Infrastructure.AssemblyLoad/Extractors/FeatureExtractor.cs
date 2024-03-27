@@ -76,7 +76,10 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                                             if (currInstr.OpCode == OpCodes.Ldstr)
                                             {
-                                                folderPath = currInstr.Operand.ToString();
+                                                folderPath =
+                                                    currInstr
+                                                        .Operand
+                                                        .ToString();
                                             }
 
                                             var feature = new SpecFlowFeature
@@ -86,9 +89,12 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                                 Description = description
                                             };
 
-                                            var scenarios = type.ExtractScenarios();
+                                            var scenarios =
+                                                type
+                                                    .ExtractScenarios();
+
                                             feature.Scenarios = scenarios;
-                                            
+
                                             resultFeatures.Add(feature);
                                         }
                                     }
@@ -98,7 +104,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                     }
                 }
             }
-            
+
             result.Features = resultFeatures;
 
             return result;

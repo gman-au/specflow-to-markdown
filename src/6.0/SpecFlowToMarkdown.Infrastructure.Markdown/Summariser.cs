@@ -8,7 +8,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
     {
         private const string StatusOk = "OK";
         private const string StatusError = "TestError";
-        
+
         public static TestSummary SummariseAllFeatures(TestExecution execution)
         {
             var executionResults =
@@ -35,16 +35,34 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             {
                 Successes =
                     featureAggregate
-                        .Count(o => Assess(o.Successes, o.Failures, o.Others) == TestStatusEnum.Success),
+                        .Count(
+                            o => Assess(
+                                o.Successes,
+                                o.Failures,
+                                o.Others
+                            ) == TestStatusEnum.Success
+                        ),
                 Failures =
                     featureAggregate
-                        .Count(o => Assess(o.Successes, o.Failures, o.Others) == TestStatusEnum.Failure),
+                        .Count(
+                            o => Assess(
+                                o.Successes,
+                                o.Failures,
+                                o.Others
+                            ) == TestStatusEnum.Failure
+                        ),
                 Others =
                     featureAggregate
-                        .Count(o => Assess(o.Successes, o.Failures, o.Others) == TestStatusEnum.Other)
+                        .Count(
+                            o => Assess(
+                                o.Successes,
+                                o.Failures,
+                                o.Others
+                            ) == TestStatusEnum.Other
+                        )
             };
         }
-        
+
         public static TestSummary SummariseAllScenarios(TestExecution execution)
         {
             var executionResults =
@@ -65,7 +83,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         .Count(o => o.Status != StatusOk && o.Status != StatusError)
             };
         }
-        
+
         public static TestSummary SummariseAllSteps(TestExecution execution)
         {
             var stepResults =
@@ -94,7 +112,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             if (others > 0) return TestStatusEnum.Other;
             if (successes > 0) return TestStatusEnum.Success;
             return TestStatusEnum.Other;
-        } 
+        }
 
         public static TestStatusEnum Assess(string value)
         {
@@ -103,7 +121,8 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 case StatusOk: return TestStatusEnum.Success;
                 case StatusError: return TestStatusEnum.Failure;
             }
+
             return TestStatusEnum.Other;
-        } 
+        }
     }
 }

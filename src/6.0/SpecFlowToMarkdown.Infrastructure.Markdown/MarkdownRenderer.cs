@@ -161,8 +161,8 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 case TestStatusEnum.Failure: return ":red_circle:";
                 default: return ":black_circle:";
             }
-        } 
-        
+        }
+
         private static string StatusIcon(TestStatusEnum result)
         {
             switch (result)

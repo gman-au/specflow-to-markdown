@@ -45,7 +45,10 @@ var testExecution =
 
 var result =
     MarkdownRenderer
-        .Perform(specFlowAssembly, testExecution);
+        .Perform(
+            specFlowAssembly,
+            testExecution
+        );
 
 FileWriter
     .Perform(

@@ -7,19 +7,19 @@
 
     <PropertyGroup>
         <PackAsTool>true</PackAsTool>
-        <PackageId>Gman.Siren</PackageId>
-        <ToolCommandName>siren-gen</ToolCommandName>
+        <PackageId>Gman.SpecFlowToMarkdown</PackageId>
+        <ToolCommandName>specflow-to-markdown</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Description>Siren C# POCO to Mermaid ER markdown generation tool</Description>
-        <RepositoryUrl>https://github.com/gman-au/siren</RepositoryUrl>
+        <Description>SpecFlow assembly and results parser, output to GitHub-compatible markdown</Description>
+        <RepositoryUrl>https://github.com/gman-au/specflow-to-markdown</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.AssemblyLoad\SpecFlowToMarkdown.Infrastructure.AssemblyLoad.csproj"/>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Io\SpecFlowToMarkdown.Infrastructure.Io.csproj"/>
-        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Markdown\SpecFlowToMarkdown.Infrastructure.Markdown.csproj" />
-        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Parsing\SpecFlowToMarkdown.Infrastructure.Parsing.csproj" />
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Markdown\SpecFlowToMarkdown.Infrastructure.Markdown.csproj"/>
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Parsing\SpecFlowToMarkdown.Infrastructure.Parsing.csproj"/>
     </ItemGroup>
 
 </Project>

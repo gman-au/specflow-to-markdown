@@ -5,11 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SpecFlowToMarkdown.Domain\SpecFlowToMarkdown.Domain.csproj" />
+        <ProjectReference Include="..\SpecFlowToMarkdown.Domain\SpecFlowToMarkdown.Domain.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     </ItemGroup>
 
 </Project>

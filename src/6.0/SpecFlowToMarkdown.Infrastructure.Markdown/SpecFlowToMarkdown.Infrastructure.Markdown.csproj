@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SpecFlowToMarkdown.Domain\SpecFlowToMarkdown.Domain.csproj" />
+        <ProjectReference Include="..\SpecFlowToMarkdown.Domain\SpecFlowToMarkdown.Domain.csproj"/>
     </ItemGroup>
 
 </Project>

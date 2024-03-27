@@ -8,7 +8,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Parsing
     {
         public static TestExecution Perform(string executionResultsPath)
         {
-            var jsonString = 
+            var jsonString =
                 File
                     .ReadAllText(executionResultsPath);
 
@@ -17,6 +17,6 @@ namespace SpecFlowToMarkdown.Infrastructure.Parsing
                     .DeserializeObject<TestExecution>(jsonString);
 
             return result;
-        } 
+        }
     }
 }
