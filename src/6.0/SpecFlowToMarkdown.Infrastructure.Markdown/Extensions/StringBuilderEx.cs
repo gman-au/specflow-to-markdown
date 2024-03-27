@@ -6,7 +6,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
 {
     public static class StringBuilderEx
     {
-        public static void AppendChart(
+        public static StringBuilder AppendChart(
             this StringBuilder stringBuilder,
             string title,
             int passCount,
@@ -67,6 +67,8 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
                 .Append(resultsBuilder)
                 .AppendLine("```")
                 .AppendLine();
+
+            return stringBuilder;
         }
     }
 }
