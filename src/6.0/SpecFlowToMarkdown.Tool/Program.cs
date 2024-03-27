@@ -7,6 +7,7 @@ using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad;
 using SpecFlowToMarkdown.Infrastructure.Io;
 using SpecFlowToMarkdown.Infrastructure.Mermaid;
+using SpecFlowToMarkdown.Infrastructure.Parsing;
 
 Console
     .WriteLine("Starting SpecFlowToMarkdown console...");
@@ -15,22 +16,14 @@ if (args.Length < 2)
     throw new Exception("Expected 2 arguments");
 
 var assemblyPath = args[0];
-var outputPath = args[1];
+var executionResultsPath = args[1];
 var markdownAnchor = (string)null;
-
-if (args.Length > 2)
-{
-    markdownAnchor = args[2];
-}
 
 if (string.IsNullOrEmpty(assemblyPath))
     throw new Exception("Assembly path argument invalid");
 
-if (string.IsNullOrEmpty(outputPath))
+if (string.IsNullOrEmpty(executionResultsPath))
     throw new Exception("Results path argument invalid");
-
-Assembly assembly;
-var isASnapshotAssembly = false;
 
 try
 {
@@ -40,15 +33,16 @@ catch (FileNotFoundException)
     throw new Exception($"Could not load assembly from {assemblyPath}");
 }
 
-TestExecution testExecution;
-SpecFlowAssembly specFlowAssembly;
-
 Console
     .WriteLine("ModelSnapshot type found in assembly... scanning...");
 
-specFlowAssembly =
+var specFlowAssembly =
     AssemblyScanner
         .Perform(assemblyPath);
+
+var testExecution =
+    TestExecutionParser
+        .Perform(executionResultsPath);
 
 var result =
     MermaidRenderer
@@ -56,7 +50,7 @@ var result =
 
 FileWriter
     .Perform(
-        outputPath,
+        executionResultsPath,
         result
     );
 

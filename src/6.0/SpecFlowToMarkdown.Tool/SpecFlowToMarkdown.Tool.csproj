@@ -19,6 +19,7 @@
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.AssemblyLoad\SpecFlowToMarkdown.Infrastructure.AssemblyLoad.csproj"/>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Io\SpecFlowToMarkdown.Infrastructure.Io.csproj"/>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Mermaid\SpecFlowToMarkdown.Infrastructure.Mermaid.csproj"/>
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Parsing\SpecFlowToMarkdown.Infrastructure.Parsing.csproj" />
     </ItemGroup>
 
 </Project>
