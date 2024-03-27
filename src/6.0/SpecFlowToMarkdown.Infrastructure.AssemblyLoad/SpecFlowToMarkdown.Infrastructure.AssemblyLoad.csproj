@@ -7,7 +7,6 @@
 
     <ItemGroup>
         <PackageReference Include="mono.cecil.core" Version="1.0.0"/>
-        <PackageReference Include="SpecFlow" Version="3.9.74"/>
     </ItemGroup>
 
     <ItemGroup>

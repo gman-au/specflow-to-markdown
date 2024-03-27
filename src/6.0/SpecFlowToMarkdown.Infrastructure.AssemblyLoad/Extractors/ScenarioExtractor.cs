@@ -3,7 +3,6 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
-using TechTalk.SpecFlow;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {
@@ -11,6 +10,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
     {
         private static readonly string[] CustomTestAttributeValues = { "NUnit.Framework.TestAttribute" };
         private static readonly string[] ScenarioStepFunctions = { "And", "Given", "When", "Then" };
+        private const string FeatureInfoTypeName = "TechTalk.SpecFlow.ScenarioInfo";
 
         public static IEnumerable<SpecFlowScenario> ExtractScenarios(this TypeDefinition type)
         {
@@ -41,7 +41,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                     {
                         if (instruction.Operand is MethodReference mr)
                         {
-                            if (mr.DeclaringType.FullName == typeof(ScenarioInfo).FullName)
+                            if (mr.DeclaringType.FullName == FeatureInfoTypeName)
                             {
                                 var currInstr =
                                     instruction

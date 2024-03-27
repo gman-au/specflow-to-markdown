@@ -3,7 +3,6 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
-using TechTalk.SpecFlow;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {
@@ -11,6 +10,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
     {
         private const string CustomFeatureAttributeValue = "TechTalk.SpecFlow";
         private const string FeatureSetupMethodName = "FeatureSetup";
+        private const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
 
         public static SpecFlowAssembly ExtractFeatures(this AssemblyDefinition assembly)
         {
@@ -50,7 +50,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                 {
                                     if (instruction.Operand is MethodReference methodReference)
                                     {
-                                        if (methodReference.DeclaringType.FullName == typeof(FeatureInfo).FullName)
+                                        if (methodReference.DeclaringType.FullName == FeatureInfoTypeName)
                                         {
                                             var description = string.Empty;
                                             var title = string.Empty;
