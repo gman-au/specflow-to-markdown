@@ -6,13 +6,20 @@ using SpecFlowToMarkdown.Domain.TestAssembly;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {
-    public static class FeatureExtractor
+    public class FeatureExtractor : IFeatureExtractor
     {
         private const string CustomFeatureAttributeValue = "TechTalk.SpecFlow";
         private const string FeatureSetupMethodName = "FeatureSetup";
         private const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
 
-        public static SpecFlowAssembly ExtractFeatures(this AssemblyDefinition assembly)
+        private readonly IScenarioExtractor _scenarioExtractor;
+
+        public FeatureExtractor(IScenarioExtractor scenarioExtractor)
+        {
+            _scenarioExtractor = scenarioExtractor;
+        }
+
+        public SpecFlowAssembly ExtractFeatures(AssemblyDefinition assembly)
         {
             var assemblyName = assembly.Name.Name;
 
@@ -90,12 +97,13 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                             };
 
                                             var scenarios =
-                                                type
-                                                    .ExtractScenarios();
+                                                _scenarioExtractor
+                                                    .ExtractScenarios(type);
 
                                             feature.Scenarios = scenarios;
 
-                                            resultFeatures.Add(feature);
+                                            resultFeatures
+                                                .Add(feature);
                                         }
                                     }
                                 }

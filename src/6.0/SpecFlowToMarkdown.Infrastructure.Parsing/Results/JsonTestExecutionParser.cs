@@ -2,11 +2,11 @@
 using Newtonsoft.Json;
 using SpecFlowToMarkdown.Domain.Result;
 
-namespace SpecFlowToMarkdown.Infrastructure.Parsing
+namespace SpecFlowToMarkdown.Infrastructure.Parsing.Results
 {
-    public static class TestExecutionParser
+    public class JsonTestExecutionParser : ITestExecutionParser
     {
-        public static TestExecution Perform(string executionResultsPath)
+        public TestExecution Parse(string executionResultsPath)
         {
             var jsonString =
                 File

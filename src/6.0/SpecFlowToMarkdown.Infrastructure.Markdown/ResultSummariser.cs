@@ -1,15 +1,16 @@
 ﻿using System.Linq;
 using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
+using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown
 {
-    internal static class Summariser
+    public class ResultSummariser : IResultSummariser
     {
         private const string StatusOk = "OK";
         private const string StatusError = "TestError";
 
-        public static TestSummary SummariseAllFeatures(TestExecution execution)
+        public TestSummary SummariseAllFeatures(TestExecution execution)
         {
             var executionResults =
                 execution
@@ -63,7 +64,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public static TestSummary SummariseAllScenarios(TestExecution execution)
+        public TestSummary SummariseAllScenarios(TestExecution execution)
         {
             var executionResults =
                 execution
@@ -84,7 +85,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public static TestSummary SummariseAllSteps(TestExecution execution)
+        public TestSummary SummariseAllSteps(TestExecution execution)
         {
             var stepResults =
                 execution
@@ -106,7 +107,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public static TestStatusEnum Assess(int successes, int failures, int others)
+        public TestStatusEnum Assess(int successes, int failures, int others)
         {
             if (failures > 0) return TestStatusEnum.Failure;
             if (others > 0) return TestStatusEnum.Other;
@@ -114,7 +115,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             return TestStatusEnum.Other;
         }
 
-        public static TestStatusEnum Assess(string value)
+        public TestStatusEnum Assess(string value)
         {
             switch (value)
             {

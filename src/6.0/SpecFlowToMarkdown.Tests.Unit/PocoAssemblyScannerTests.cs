@@ -1,10 +1,3 @@
-using System.Linq;
-using System.Reflection;
-using SpecFlowToMarkdown.Domain;
-using SpecFlowToMarkdown.Infrastructure.AssemblyLoad;
-using SpecFlowToMarkdown.Tests.Domain;
-using Xunit;
-
 namespace SpecFlowToMarkdown.Tests.Unit
 {
     public class PocoAssemblyScannerTests

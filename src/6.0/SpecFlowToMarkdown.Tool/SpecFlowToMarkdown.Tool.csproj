@@ -16,10 +16,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\SpecFlowToMarkdown.Application\SpecFlowToMarkdown.Application.csproj" />
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.AssemblyLoad\SpecFlowToMarkdown.Infrastructure.AssemblyLoad.csproj"/>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Io\SpecFlowToMarkdown.Infrastructure.Io.csproj"/>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Markdown\SpecFlowToMarkdown.Infrastructure.Markdown.csproj"/>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Parsing\SpecFlowToMarkdown.Infrastructure.Parsing.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     </ItemGroup>
 
 </Project>

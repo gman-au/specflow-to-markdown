@@ -6,13 +6,13 @@ using SpecFlowToMarkdown.Domain.TestAssembly;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {
-    public static class ScenarioExtractor
+    public class ScenarioExtractor : IScenarioExtractor
     {
         private const string FeatureInfoTypeName = "TechTalk.SpecFlow.ScenarioInfo";
         private static readonly string[] CustomTestAttributeValues = { "NUnit.Framework.TestAttribute" };
         private static readonly string[] ScenarioStepFunctions = { "And", "Given", "When", "Then" };
 
-        public static IEnumerable<SpecFlowScenario> ExtractScenarios(this TypeDefinition type)
+        public IEnumerable<SpecFlowScenario> ExtractScenarios(TypeDefinition type)
         {
             var results = new List<SpecFlowScenario>();
 

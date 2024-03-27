@@ -4,17 +4,24 @@ using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad
 {
-    public static class AssemblyScanner
+    public class AssemblyScanner : IAssemblyScanner
     {
-        public static SpecFlowAssembly Perform(string assemblyPath)
+        private readonly IFeatureExtractor _featureExtractor;
+
+        public AssemblyScanner(IFeatureExtractor featureExtractor)
+        {
+            _featureExtractor = featureExtractor;
+        }
+
+        public SpecFlowAssembly Perform(string assemblyPath)
         {
             var assembly =
                 AssemblyDefinition
                     .ReadAssembly(assemblyPath);
 
             var result =
-                assembly
-                    .ExtractFeatures();
+                _featureExtractor
+                    .ExtractFeatures(assembly);
 
             return result;
         }

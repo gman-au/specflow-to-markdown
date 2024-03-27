@@ -1,29 +1,29 @@
 ﻿using System;
-using System.IO;
-using SpecFlowToMarkdown.Infrastructure.AssemblyLoad;
-using SpecFlowToMarkdown.Infrastructure.Io;
-using SpecFlowToMarkdown.Infrastructure.Markdown;
-using SpecFlowToMarkdown.Infrastructure.Parsing;
+using Microsoft.Extensions.DependencyInjection;
+using SpecFlowToMarkdown.Application;
+using SpecFlowToMarkdown.Tool;
+
+var services = 
+    Startup
+        .AddServices();
+
+var serviceProvider =
+    services
+        .BuildServiceProvider();
+
+var application = 
+    serviceProvider
+        .GetRequiredService<ISpecFlowApplication>();
+
+application
+    .Perform(args);
 
 Console
     .WriteLine("Starting SpecFlowToMarkdown console...");
 
-if (args.Length < 3)
-    throw new Exception("Expected 3 arguments");
+return;
 
-var assemblyPath = args[0];
-var executionResultsPath = args[1];
-var outputPath = args[2];
-
-if (string.IsNullOrEmpty(assemblyPath))
-    throw new Exception("Assembly path argument invalid");
-
-if (string.IsNullOrEmpty(executionResultsPath))
-    throw new Exception("Results path argument invalid");
-
-if (string.IsNullOrEmpty(outputPath))
-    throw new Exception("Output path argument invalid");
-
+/*
 try
 {
 }
@@ -57,4 +57,4 @@ FileWriter
     );
 
 Console
-    .WriteLine("SpecFlowToMarkdown operation completed");
+    .WriteLine("SpecFlowToMarkdown operation completed");*/

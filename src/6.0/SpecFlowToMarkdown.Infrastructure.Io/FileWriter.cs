@@ -4,11 +4,11 @@ using System.Text;
 
 namespace SpecFlowToMarkdown.Infrastructure.Io
 {
-    public static class FileWriter
+    public class FileWriter : IFileWriter
     {
-        public static void Perform(
-            string filePath,
-            StringBuilder result
+        public void Perform(
+            StringBuilder result,
+            string filePath
         )
         {
             var exists =
