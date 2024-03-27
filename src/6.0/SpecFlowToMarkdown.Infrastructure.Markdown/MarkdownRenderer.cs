@@ -159,7 +159,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             {
                 case TestStatusEnum.Success: return ":green_circle:";
                 case TestStatusEnum.Failure: return ":red_circle:";
-                default: return ":heavy_minus_sign:";
+                default: return ":black_circle:";
             }
         } 
         
