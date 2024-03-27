@@ -24,6 +24,7 @@ namespace SpecFlowToMarkdown.Tool
                 .AddSingleton<IFileWriter, FileWriter>()
                 .AddSingleton<IResultSummariser, ResultSummariser>()
                 .AddSingleton<IMarkdownRenderer, MarkdownRenderer>()
+                .AddSingleton<IColourSorter, ColourSorter>()
                 .AddSingleton<ITestExecutionParser, JsonTestExecutionParser>()
                 .AddSingleton<IProgramArgumentsParser, ProgramArgumentsParser>();
 

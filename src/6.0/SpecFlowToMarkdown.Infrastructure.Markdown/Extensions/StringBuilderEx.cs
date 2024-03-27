@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
 {
@@ -9,32 +10,10 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
         public static StringBuilder AppendChart(
             this StringBuilder stringBuilder,
             string title,
-            int passCount,
-            int failCount,
-            int otherCount
+            ICollection<ChartLegendItem> legend
         )
         {
-            var positiveValuesList = new List<string>();
-
-            var resultsBuilder = new StringBuilder();
-
-            if (passCount > 0)
-            {
-                positiveValuesList.Add("#16c60c88");
-                resultsBuilder.AppendLine($"\t\"Pass\": {passCount}");
-            }
-
-            if (failCount > 0)
-            {
-                positiveValuesList.Add("#f03a1788");
-                resultsBuilder.AppendLine($"\t\"Fail\": {failCount}");
-            }
-
-            if (otherCount > 0)
-            {
-                positiveValuesList.Add("#fff8");
-                resultsBuilder.AppendLine($"\t\"Other\": {otherCount}");
-            }
+            // pieColor is determined by value, descending
 
             stringBuilder
                 .AppendLine()
@@ -47,12 +26,14 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
                 .AppendLine("\t\t\t'pieStrokeColor': '#8888',")
                 .AppendLine("\t\t\t'pieOuterStrokeColor': '#8888',");
 
-            foreach (var positiveValue in positiveValuesList)
+            for(var i=0; i < legend.Count; i++)
             {
+                var legendItem = legend.ElementAt(i);
+                
                 stringBuilder
-                    .Append($"\t\t\t'pie{positiveValuesList.IndexOf(positiveValue) + 1}': '{positiveValue}'");
+                    .Append($"\t\t\t'pie{i + 1}': '{legendItem.Colour}'");
 
-                if (positiveValuesList.Last() != positiveValue)
+                if (i + 1 < legend.Count)
                     stringBuilder.Append(",");
 
                 stringBuilder
@@ -63,8 +44,15 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
                 .AppendLine("\t\t}")
                 .AppendLine("\t}")
                 .AppendLine("}%%")
-                .AppendLine($"pie title {title}")
-                .Append(resultsBuilder)
+                .AppendLine($"pie title {title}");
+
+            foreach (var legendItem in legend)
+            {
+                stringBuilder
+                    .AppendLine($"\t\"{legendItem.Title}\": {legendItem.Value}");
+            }
+            
+            stringBuilder
                 .AppendLine("```")
                 .AppendLine();
 

@@ -11,11 +11,16 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 {
     public class MarkdownRenderer : IMarkdownRenderer
     {
+        private readonly IColourSorter _colourSorter;
         private readonly IResultSummariser _resultSummariser;
 
-        public MarkdownRenderer(IResultSummariser resultSummariser)
+        public MarkdownRenderer(
+            IResultSummariser resultSummariser,
+            IColourSorter colourSorter
+        )
         {
             _resultSummariser = resultSummariser;
+            _colourSorter = colourSorter;
         }
 
         public StringBuilder Perform(
@@ -47,25 +52,34 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 .AppendLine("<td>")
                 .AppendChart(
                     "Features",
-                    featureSummary.Successes,
-                    featureSummary.Failures,
-                    featureSummary.Others
+                    _colourSorter
+                        .Sort(
+                            featureSummary.Successes,
+                            featureSummary.Failures,
+                            featureSummary.Others
+                        )
                 )
                 .AppendLine("</td>")
                 .AppendLine("<td>")
                 .AppendChart(
                     "Scenarios",
-                    scenarioSummary.Successes,
-                    scenarioSummary.Failures,
-                    scenarioSummary.Others
+                    _colourSorter
+                        .Sort(
+                            scenarioSummary.Successes,
+                            scenarioSummary.Failures,
+                            scenarioSummary.Others
+                        )
                 )
                 .AppendLine("</td>")
                 .AppendLine("<td>")
                 .AppendChart(
                     "Steps",
-                    stepSummary.Successes,
-                    stepSummary.Failures,
-                    stepSummary.Others
+                    _colourSorter
+                        .Sort(
+                            stepSummary.Successes,
+                            stepSummary.Failures,
+                            stepSummary.Others
+                        )
                 )
                 .AppendLine("</td>")
                 .AppendLine("</tr>")
