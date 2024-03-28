@@ -93,8 +93,18 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             // TOC
             var tocBuilder = new StringBuilder();
             tocBuilder
-                .AppendLine("| Feature | Scenario | Passed | Failed | Skipped | Time |")
-                .AppendLine("| --- | --- | --- | --- | --- | --- |");
+                .AppendLine()
+                .AppendLine("<table>")
+                .AppendLine("<tr>");
+
+            foreach (var header in new[] { "Feature", "Scenario", "Passed", "Failed", "Skipped", "Time" })
+            {
+                tocBuilder
+                    .AppendLine($"<th>{header}</th>");
+            }
+
+            tocBuilder
+                .AppendLine("<tr>");
 
             // Features
             var featureSectionBuilder = new StringBuilder();
@@ -118,6 +128,11 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     featureScenarios
                         .Count(o => _resultSummariser.Assess(o.Status) == TestStatusEnum.Other);
 
+                var featureDuration =
+                    featureScenarios
+                        .SelectMany(o => o.StepResults)
+                        .Sum(x => x.Duration.GetValueOrDefault().TotalSeconds);
+                
                 var status =
                     _resultSummariser
                         .Assess(
@@ -137,12 +152,12 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         );
 
                 tocBuilder
-                    .Append($"| {featureAnchor} ")
-                    .Append($"| ")
-                    .Append($"| {featureSuccesses} {(featureSuccesses > 0 ? $":{IconReference.IconSuitePassed}:" : null)} ")
-                    .Append($"| {featureFails} {(featureFails > 0 ? $":{IconReference.IconSuiteFailed}:" : null)} ")
-                    .Append($"| {featureOthers} {(featureOthers > 0 ? $":{IconReference.IconSuiteSkipped}:" : null)} ")
-                    .Append("| ")
+                    .AppendLine($"<td>{featureAnchor}</td>")
+                    .AppendLine($"<td/>")
+                    .AppendLine($"<td>{featureSuccesses} {(featureSuccesses > 0 ? $":{IconReference.IconSuitePassed}:" : null)}</td>")
+                    .AppendLine($"<td>{featureFails} {(featureFails > 0 ? $":{IconReference.IconSuiteFailed}:" : null)}</td>")
+                    .AppendLine($"<td>{featureOthers} {(featureOthers > 0 ? $":{IconReference.IconSuiteSkipped}:" : null)}</td>")
+                    .AppendLine($"<td>{Math.Round(featureDuration, 2)}s</td>")
                     .AppendLine();
 
                 featureSectionBuilder
@@ -162,7 +177,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                                 .Assess(scenarioResult.Status);
 
                         var scenarioStatusIcon = StatusIcon(scenarioStatus);
-                        
+
                         var scenarioAnchor =
                             _anchorGenerator
                                 .Build(
@@ -170,15 +185,21 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                                     scenarioStatusIcon,
                                     scenario.Title
                                 );
-                        
+
+                        var scenarioDuration =
+                            scenarioResult
+                                .StepResults
+                                .Sum(o => o.Duration.GetValueOrDefault().TotalSeconds);
+
                         tocBuilder
-                            .Append($"| ")
-                            .Append($"| <small>{scenarioAnchor}</small> ")
-                            .Append($"| {(scenarioStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)} ")
-                            .Append($"| {(scenarioStatus == TestStatusEnum.Failure ? $":{IconReference.IconStepFailed}:" : null)} ")
-                            .Append($"| {(scenarioStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)} ")
-                            .Append("| ")
-                            .AppendLine();
+                            .AppendLine("<tr>")
+                            .AppendLine($"<td/>")
+                            .AppendLine($"<td>{scenarioAnchor}</td>")
+                            .AppendLine($"<td>{(scenarioStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)}</td>")
+                            .AppendLine($"<td>{(scenarioStatus == TestStatusEnum.Failure ? $":{IconReference.IconStepFailed}:" : null)}</td>")
+                            .AppendLine($"<td>{(scenarioStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)}</td>")
+                            .AppendLine($"<td>{Math.Round(scenarioDuration, 2)}s</td>")
+                            .AppendLine("</tr>");
 
                         featureSectionBuilder
                             .AppendLine($"### :{StatusIcon(scenarioStatus)}: <i>Scenario:</i>\t{scenario.Title}");
@@ -244,6 +265,10 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     }
                 }
             }
+
+            tocBuilder
+                .AppendLine("</table>")
+                .AppendLine();
 
             result
                 .Append(headerBuilder)

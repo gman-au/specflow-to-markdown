@@ -7,5 +7,7 @@
         public int Failures { get; set; }
         
         public int Others { get; set; }
+        
+        public double Duration { get; set; }
     }
 }

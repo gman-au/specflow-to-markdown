@@ -24,7 +24,7 @@
                 iconString = $"{icon}-";
             }
             
-            return $"[{titleText ?? title}](#{iconString}{id})";
+            return $"<a href=\"#{iconString}{id}\">{titleText ?? title}</a>";
         }
     }
 }

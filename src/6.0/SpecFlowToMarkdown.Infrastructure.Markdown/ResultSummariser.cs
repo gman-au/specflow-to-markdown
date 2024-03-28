@@ -32,6 +32,11 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     )
                     .ToList();
 
+            var totalDuration =
+                executionResults
+                    .SelectMany(o => o.StepResults)
+                    .Sum(x => x.Duration.GetValueOrDefault().TotalSeconds);
+
             return new TestSummary
             {
                 Successes =
@@ -60,7 +65,8 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                                 o.Failures,
                                 o.Others
                             ) == TestStatusEnum.Other
-                        )
+                        ),
+                Duration = totalDuration
             };
         }
 
