@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SpecFlowToMarkdown.Domain\SpecFlowToMarkdown.Domain.csproj"/>
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Io\SpecFlowToMarkdown.Infrastructure.Io.csproj" />
     </ItemGroup>
 
 </Project>

@@ -15,10 +15,12 @@ You can install the `specflow-to-markdown` tool via the following .NET command
 dotnet tool install -g Gman.SpecFlowToMarkdown
 ```
 ### Running the tool
-The tool takes three arguments:
+The tool takes five arguments:
 ```
-specflow-to-markdown <PATH_TO_TEST_ASSEMBLY> <PATH_TO_TEST_RESULTS_FILE> <PATH_TO_OUTPUT_FILE>
+specflow-to-markdown <PATH_TO_TEST_ASSEMBLY> <TEST_ASSEMBLY_FILE> <PATH_TO_TEST_RESULTS_FILE> <TEST_RESULTS_FILE> <PATH_TO_OUTPUT_FILE>
 ```
 - `PATH_TO_TEST_ASSEMBLY` - this will be the location of the built .NET DLL containing the SpecFlow tests.
+- `TEST_ASSEMBLY_FILE` - this will be the name of the assembly file. Supports wildcards.
 - `PATH_TO_TEST_RESULTS_FILE` - this will be the location of the (JSON) test execution results file.
+- `TEST_RESULTS_FILE` - this will be the name of the results file. Supports wildcards.
 - `PATH_TO_OUTPUT_FILE` - this will be the path to the generated output file where the markdown should be generated; includes the full file name. The file _does not have to be a markdown_ (`.md`) file.

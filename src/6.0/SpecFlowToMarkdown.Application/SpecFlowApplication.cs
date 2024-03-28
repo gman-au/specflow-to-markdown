@@ -47,11 +47,11 @@ namespace SpecFlowToMarkdown.Application
                 
                 var specFlowAssembly =
                     _assemblyScanner
-                        .Perform(arguments.TestAssemblyPath);
+                        .Perform(arguments);
 
                 var testResults =
                     _testExecutionParser
-                        .Parse(arguments.TestResultsPath);
+                        .Parse(arguments);
                 
                 var markdown =
                     _markdownRenderer

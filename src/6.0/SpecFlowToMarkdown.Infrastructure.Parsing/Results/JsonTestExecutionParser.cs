@@ -1,16 +1,32 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
+using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
+using SpecFlowToMarkdown.Infrastructure.Io;
 
 namespace SpecFlowToMarkdown.Infrastructure.Parsing.Results
 {
     public class JsonTestExecutionParser : ITestExecutionParser
     {
-        public TestExecution Parse(string executionResultsPath)
+        private readonly IFileFinder _fileFinder;
+
+        public JsonTestExecutionParser(IFileFinder fileFinder)
         {
+            _fileFinder = fileFinder;
+        }
+
+        public TestExecution Parse(ProgramArguments arguments)
+        {
+            var foundFilePath =
+                _fileFinder
+                    .GetFirstFound(
+                        arguments.TestResultsFolder,
+                        arguments.TestResultsFile
+                    );
+            
             var jsonString =
                 File
-                    .ReadAllText(executionResultsPath);
+                    .ReadAllText(foundFilePath);
 
             var result =
                 JsonConvert

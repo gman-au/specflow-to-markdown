@@ -15,27 +15,37 @@ namespace SpecFlowToMarkdown.Infrastructure.Parsing.Arguments
 
         public ProgramArguments Parse(string[] args)
         {
-            if (args.Length < 3)
-                throw new Exception("Expected 3 arguments");
+            if (args.Length < 5)
+                throw new Exception("Expected 5 arguments");
 
-            var assemblyPath = args[0];
-            var executionResultsPath = args[1];
-            var outputPath = args[2];
+            var testAssemblyFolder = args[0];
+            var testAssemblyFile = args[1];
+            var testResultsFolder = args[2];
+            var testResultsFile = args[3];
+            var outputPath = args[4];
 
-            if (string.IsNullOrEmpty(assemblyPath))
+            if (string.IsNullOrEmpty(testAssemblyFolder))
                 throw new Exception("Assembly path argument invalid");
 
-            if (string.IsNullOrEmpty(executionResultsPath))
+            if (string.IsNullOrEmpty(testAssemblyFile))
+                throw new Exception("Assembly file argument invalid");
+
+            if (string.IsNullOrEmpty(testResultsFolder))
                 throw new Exception("Results path argument invalid");
+
+            if (string.IsNullOrEmpty(testResultsFile))
+                throw new Exception("Results file argument invalid");
 
             if (string.IsNullOrEmpty(outputPath))
                 throw new Exception("Output path argument invalid");
 
             var result = new ProgramArguments
             {
-                TestAssemblyPath = args[0],
-                TestResultsPath = args[1],
-                OutputFilePath = args[2]
+                TestAssemblyFolder = testAssemblyFolder,
+                TestAssemblyFile = testAssemblyFile,
+                TestResultsFolder = testResultsFolder,
+                TestResultsFile = testResultsFile,
+                OutputFilePath = outputPath
             };
             
             _logger
