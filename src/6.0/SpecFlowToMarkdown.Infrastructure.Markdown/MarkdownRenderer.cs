@@ -11,16 +11,19 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 {
     public class MarkdownRenderer : IMarkdownRenderer
     {
+        private readonly IAnchorGenerator _anchorGenerator;
         private readonly IColourSorter _colourSorter;
         private readonly IResultSummariser _resultSummariser;
 
         public MarkdownRenderer(
             IResultSummariser resultSummariser,
-            IColourSorter colourSorter
+            IColourSorter colourSorter,
+            IAnchorGenerator anchorGenerator
         )
         {
             _resultSummariser = resultSummariser;
             _colourSorter = colourSorter;
+            _anchorGenerator = anchorGenerator;
         }
 
         public StringBuilder Perform(
@@ -29,6 +32,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
         )
         {
             var result = new StringBuilder();
+            var headerBuilder = new StringBuilder();
 
             var featureSummary =
                 _resultSummariser
@@ -43,10 +47,10 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     .SummariseAllSteps(execution);
 
             // Render header
-            result
+            headerBuilder
                 .AppendLine($"# {assembly.AssemblyName}");
 
-            result
+            headerBuilder
                 .AppendLine("<table>")
                 .AppendLine("<tr>")
                 .AppendLine("<td>")
@@ -83,10 +87,17 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 )
                 .AppendLine("</td>")
                 .AppendLine("</tr>")
-                .AppendLine("<table>")
+                .AppendLine("</table>")
                 .AppendLine();
 
+            // TOC
+            var tocBuilder = new StringBuilder();
+            tocBuilder
+                .AppendLine("| Feature | Scenario | Passed | Failed | Skipped | Time |")
+                .AppendLine("| --- | --- | --- | --- | --- | --- |");
+
             // Features
+            var featureSectionBuilder = new StringBuilder();
             foreach (var feature in assembly.Features)
             {
                 var featureScenarios =
@@ -115,8 +126,27 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                             featureOthers
                         );
 
-                result
-                    .AppendLine($"## {StatusIcon(status)} <i>Feature:</i>\t{feature.Title}");
+                var featureStatusIcon = StatusIcon(status);
+
+                var featureAnchor =
+                    _anchorGenerator
+                        .Build(
+                            $"Feature:{feature.Title}",
+                            featureStatusIcon,
+                            feature.Title
+                        );
+
+                tocBuilder
+                    .Append($"| {featureAnchor} ")
+                    .Append($"| ")
+                    .Append($"| {featureSuccesses} {(featureSuccesses > 0 ? $":{IconReference.IconSuitePassed}:" : null)} ")
+                    .Append($"| {featureFails} {(featureFails > 0 ? $":{IconReference.IconSuiteFailed}:" : null)} ")
+                    .Append($"| {featureOthers} {(featureOthers > 0 ? $":{IconReference.IconSuiteSkipped}:" : null)} ")
+                    .Append("| ")
+                    .AppendLine();
+
+                featureSectionBuilder
+                    .AppendLine($"## :{StatusIcon(status)}: <i>Feature:</i>\t{feature.Title}");
 
                 // Scenarios
                 foreach (var scenario in feature.Scenarios)
@@ -131,22 +161,41 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                             _resultSummariser
                                 .Assess(scenarioResult.Status);
 
-                        result
-                            .AppendLine($"### {StatusIcon(scenarioStatus)} <i>Scenario:</i>\t{scenario.Title}");
+                        var scenarioStatusIcon = StatusIcon(scenarioStatus);
+                        
+                        var scenarioAnchor =
+                            _anchorGenerator
+                                .Build(
+                                    $"Scenario:{scenario.Title}",
+                                    scenarioStatusIcon,
+                                    scenario.Title
+                                );
+                        
+                        tocBuilder
+                            .Append($"| ")
+                            .Append($"| <small>{scenarioAnchor}</small> ")
+                            .Append($"| {(scenarioStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)} ")
+                            .Append($"| {(scenarioStatus == TestStatusEnum.Failure ? $":{IconReference.IconStepFailed}:" : null)} ")
+                            .Append($"| {(scenarioStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)} ")
+                            .Append("| ")
+                            .AppendLine();
+
+                        featureSectionBuilder
+                            .AppendLine($"### :{StatusIcon(scenarioStatus)}: <i>Scenario:</i>\t{scenario.Title}");
 
                         if (!string.IsNullOrEmpty(scenario.Description))
                         {
-                            result
+                            featureSectionBuilder
                                 .AppendLine($"`{scenario.Description.Trim()}`");
                         }
 
-                        result
+                        featureSectionBuilder
                             .AppendLine("<table>");
 
                         // Steps
                         for (var i = 0; i < scenario.Steps.Count(); i++)
                         {
-                            result
+                            featureSectionBuilder
                                 .AppendLine("<tr>");
 
                             var stepDetails =
@@ -159,16 +208,16 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                                     .StepResults
                                     .ElementAt(i);
 
-                            result
+                            featureSectionBuilder
                                 .AppendLine(
-                                    $"<td>{StatusCircle(stepResult.Status)}</td>" +
+                                    $"<td>:{StatusCircle(stepResult.Status)}:</td>" +
                                     $"<td>{FullResultText(stepDetails)}</td>" +
                                     $"<td>{Math.Round(stepResult.Duration.GetValueOrDefault().TotalSeconds, 2)}s</td>"
                                 );
 
                             if (!string.IsNullOrEmpty(stepResult.Error))
                             {
-                                result
+                                featureSectionBuilder
                                     .AppendLine()
                                     .AppendLine("<td>")
                                     .AppendLine("<details>")
@@ -181,20 +230,25 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                             }
                             else
                             {
-                                result
+                                featureSectionBuilder
                                     .AppendLine("<td/>");
                             }
 
-                            result
+                            featureSectionBuilder
                                 .AppendLine("</tr>");
                         }
 
-                        result
+                        featureSectionBuilder
                             .AppendLine("</table>")
                             .AppendLine();
                     }
                 }
             }
+
+            result
+                .Append(headerBuilder)
+                .Append(tocBuilder)
+                .Append(featureSectionBuilder);
 
             return result;
         }
@@ -213,9 +267,9 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
         {
             return result switch
             {
-                TestStatusEnum.Success => ":green_circle:",
-                TestStatusEnum.Failure => ":red_circle:",
-                _ => ":black_circle:"
+                TestStatusEnum.Success => IconReference.IconStepPassed,
+                TestStatusEnum.Failure => IconReference.IconStepFailed,
+                _ => IconReference.IconStepSkipped
             };
         }
 
@@ -223,9 +277,9 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
         {
             return result switch
             {
-                TestStatusEnum.Success => ":heavy_check_mark:",
-                TestStatusEnum.Failure => ":x:",
-                _ => ":heavy_minus_sign:"
+                TestStatusEnum.Success => IconReference.IconSuitePassed,
+                TestStatusEnum.Failure => IconReference.IconSuiteFailed,
+                _ => IconReference.IconSuiteSkipped
             };
         }
     }

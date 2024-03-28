@@ -58,12 +58,11 @@ namespace SpecFlowToMarkdown.Application
                             specFlowAssembly,
                             testResults
                         );
-
+                
                 _fileWriter
                     .Perform(
                         markdown,
-                        arguments.OutputFilePath
-                    );
+                        arguments.OutputFilePath);
 
                 _logger
                     .LogInformation("Completed SpecFlow Markdown generation");
