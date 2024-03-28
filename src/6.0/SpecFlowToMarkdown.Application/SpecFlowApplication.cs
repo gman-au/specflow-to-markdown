@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.Logging;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad;
 using SpecFlowToMarkdown.Infrastructure.Io;
 using SpecFlowToMarkdown.Infrastructure.Markdown;
