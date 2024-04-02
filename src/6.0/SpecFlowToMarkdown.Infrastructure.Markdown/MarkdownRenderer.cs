@@ -160,7 +160,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     .AppendLine();
 
                 featureSectionBuilder
-                    .AppendLine($"## :{StatusIcon(status)}: <a id=\"{featureAnchor}\"><i>Feature:</i>\t{feature.Title}</a>");
+                    .AppendLine($"<h2> :{StatusIcon(status)}: <a id=\"{featureAnchor}\"><i>Feature:</i>\t{feature.Title}</a></h2>");
 
                 // Scenarios
                 foreach (var scenario in feature.Scenarios)
@@ -207,7 +207,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 
                         featureSectionBuilder
                             .AppendLine(
-                                $"### :{StatusIcon(scenarioStatus)}: <a id=\"{scenarioAnchor}\"><i>Scenario:</i>\t{scenario.Title}</a>"
+                                $"<h3> :{StatusIcon(scenarioStatus)}: <a id=\"{scenarioAnchor}\"><i>Scenario:</i>\t{scenario.Title}</a></h3>"
                             );
 
                         if (!string.IsNullOrEmpty(scenario.Description))
