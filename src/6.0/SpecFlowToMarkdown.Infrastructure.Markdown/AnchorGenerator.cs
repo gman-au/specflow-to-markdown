@@ -2,7 +2,7 @@
 {
     public class AnchorGenerator : IAnchorGenerator
     {
-        public string Build(string title, string icon = null, string titleText = null)
+        public string Build(string title, string icon = null)
         {
             var id =
                 title
@@ -24,7 +24,7 @@
                 iconString = $"{icon}-";
             }
             
-            return $"<a href=\"#{iconString}{id}\">{titleText ?? title}</a>";
+            return $"{iconString}{id}";
         }
     }
 }

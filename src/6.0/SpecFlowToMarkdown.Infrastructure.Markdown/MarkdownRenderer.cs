@@ -132,7 +132,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     featureScenarios
                         .SelectMany(o => o.StepResults)
                         .Sum(x => x.Duration.GetValueOrDefault().TotalSeconds);
-                
+
                 var status =
                     _resultSummariser
                         .Assess(
@@ -147,12 +147,11 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     _anchorGenerator
                         .Build(
                             $"Feature:{feature.Title}",
-                            featureStatusIcon,
-                            feature.Title
+                            featureStatusIcon
                         );
 
                 tocBuilder
-                    .AppendLine($"<td>{featureAnchor}</td>")
+                    .AppendLine($"<td><a href=\"#{featureAnchor}\">Feature:{feature.Title}</a></td>")
                     .AppendLine($"<td/>")
                     .AppendLine($"<td>{featureSuccesses} {(featureSuccesses > 0 ? $":{IconReference.IconSuitePassed}:" : null)}</td>")
                     .AppendLine($"<td>{featureFails} {(featureFails > 0 ? $":{IconReference.IconSuiteFailed}:" : null)}</td>")
@@ -161,7 +160,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     .AppendLine();
 
                 featureSectionBuilder
-                    .AppendLine($"## :{StatusIcon(status)}: <i>Feature:</i>\t{feature.Title}");
+                    .AppendLine($"## :{StatusIcon(status)}: <a id=\"{featureAnchor}\"><i>Feature:</i>\t{feature.Title}</a>");
 
                 // Scenarios
                 foreach (var scenario in feature.Scenarios)
@@ -182,8 +181,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                             _anchorGenerator
                                 .Build(
                                     $"Scenario:{scenario.Title}",
-                                    scenarioStatusIcon,
-                                    scenario.Title
+                                    scenarioStatusIcon
                                 );
 
                         var scenarioDuration =
@@ -194,15 +192,23 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         tocBuilder
                             .AppendLine("<tr>")
                             .AppendLine($"<td/>")
-                            .AppendLine($"<td>{scenarioAnchor}</td>")
-                            .AppendLine($"<td>{(scenarioStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)}</td>")
-                            .AppendLine($"<td>{(scenarioStatus == TestStatusEnum.Failure ? $":{IconReference.IconStepFailed}:" : null)}</td>")
-                            .AppendLine($"<td>{(scenarioStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)}</td>")
+                            .AppendLine($"<td><a href=\"#{scenarioAnchor}\">Scenario:{scenario.Title}</a></td>")
+                            .AppendLine(
+                                $"<td>{(scenarioStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)}</td>"
+                            )
+                            .AppendLine(
+                                $"<td>{(scenarioStatus == TestStatusEnum.Failure ? $":{IconReference.IconStepFailed}:" : null)}</td>"
+                            )
+                            .AppendLine(
+                                $"<td>{(scenarioStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)}</td>"
+                            )
                             .AppendLine($"<td>{Math.Round(scenarioDuration, 2)}s</td>")
                             .AppendLine("</tr>");
 
                         featureSectionBuilder
-                            .AppendLine($"### :{StatusIcon(scenarioStatus)}: <i>Scenario:</i>\t{scenario.Title}");
+                            .AppendLine(
+                                $"### :{StatusIcon(scenarioStatus)}: <a id=\"{scenarioAnchor}\"><i>Scenario:</i>\t{scenario.Title}</a>"
+                            );
 
                         if (!string.IsNullOrEmpty(scenario.Description))
                         {

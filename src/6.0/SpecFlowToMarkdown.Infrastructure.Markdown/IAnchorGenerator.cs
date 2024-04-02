@@ -2,6 +2,6 @@
 {
     public interface IAnchorGenerator
     {
-        public string Build(string title, string icon = null, string titleText = null);
+        public string Build(string title, string icon = null);
     }
 }
