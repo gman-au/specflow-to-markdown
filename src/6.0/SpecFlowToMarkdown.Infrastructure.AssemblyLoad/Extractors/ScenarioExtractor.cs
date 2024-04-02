@@ -31,6 +31,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                     // Extract Scenario
                     var title = string.Empty;
                     var description = string.Empty;
+                    var tags = new List<string>();
 
                     foreach (var instruction in
                              method
@@ -61,6 +62,25 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                 {
                                     title = currInstr.Operand.ToString();
                                 }
+
+                                currInstr =
+                                    currInstr
+                                        .Previous
+                                        .Previous
+                                        .Previous
+                                        .Previous
+                                        .Previous;
+
+                                while (currInstr.OpCode == OpCodes.Ldstr)
+                                {
+                                    tags.Add(currInstr.Operand.ToString());
+                                    currInstr = 
+                                        currInstr
+                                            .Previous
+                                            .Previous
+                                            .Previous
+                                            .Previous;
+                                }
                             }
                         }
                     }
@@ -69,7 +89,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                     {
                         Title = title,
                         Description = description,
-                        Tags = null
+                        Tags = tags
                     };
 
                     // Extract Steps

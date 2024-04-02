@@ -162,6 +162,14 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 featureSectionBuilder
                     .AppendLine($"<h2> :{StatusIcon(status)}: <a id=\"{featureAnchor}\"><i>Feature:</i>\t{feature.Title}</a></h2>");
 
+                if (!string.IsNullOrEmpty(feature.Description))
+                {
+                    featureSectionBuilder
+                        .AppendLine()
+                        .Append(feature.Description)
+                        .AppendLine();
+                }
+
                 // Scenarios
                 foreach (var scenario in feature.Scenarios)
                 {
@@ -210,9 +218,41 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                                 $"<h3> :{StatusIcon(scenarioStatus)}: <a id=\"{scenarioAnchor}\"><i>Scenario:</i>\t{scenario.Title}</a></h3>"
                             );
 
+                        if ((scenario.Tags ?? Enumerable.Empty<string>()).Any())
+                        {
+                            featureSectionBuilder
+                                .AppendLine()
+                                .Append($":label:");
+
+                            var tagString =
+                                string.Join(
+                                    ", ",
+                                    scenario
+                                        .Tags
+                                        .Select(
+                                            o =>
+                                                o
+                                                    .Replace(
+                                                        ",",
+                                                        ""
+                                                    )
+                                                    .Insert(
+                                                        0,
+                                                        "@"
+                                                    )
+                                        )
+                                );
+
+                            featureSectionBuilder
+                                .Append($" {tagString}")
+                                .AppendLine();
+                        }
+
                         if (!string.IsNullOrEmpty(scenario.Description))
                         {
                             featureSectionBuilder
+                                .AppendLine()
+                                .AppendLine()
                                 .AppendLine($"`{scenario.Description.Trim()}`");
                         }
 
