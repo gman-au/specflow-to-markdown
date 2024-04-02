@@ -238,7 +238,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                                                     )
                                                     .Insert(
                                                         0,
-                                                        "@"
+                                                        "\\@"
                                                     )
                                         )
                                 );
