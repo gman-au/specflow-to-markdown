@@ -1,5 +1,7 @@
-﻿using SpecFlowToMarkdown.Domain;
+﻿using System.Collections.Generic;
+using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
+using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown
@@ -11,6 +13,8 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
         public TestSummary SummariseAllScenarios(TestExecution execution);
 
         public TestSummary SummariseAllSteps(TestExecution execution);
+        
+        public IEnumerable<ChartLegendItem> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly);
 
         public TestStatusEnum Assess(int successes, int failures, int others);
 

@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
+using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown
@@ -111,6 +114,71 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     stepResults
                         .Count(o => o.Status != StatusOk && o.Status != StatusError)
             };
+        }
+
+        public IEnumerable<ChartLegendItem> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly)
+        {
+            var results = new List<ChartLegendItem>();
+
+            var allTags =
+                assembly
+                    .Features
+                    .SelectMany(o => o.Scenarios.SelectMany(x => x.Tags))
+                    .Distinct();
+
+            foreach (var tag in allTags)
+            {
+                var result = new ChartLegendItem
+                {
+                    Title = tag,
+                    Colour = null,
+                    PrimaryValue = 0,
+                    SecondaryValue = 0
+                };
+
+                var total = 0;
+
+                foreach (var feature in assembly.Features)
+                {
+                    var allTaggedScenarios =
+                        feature
+                            .Scenarios
+                            .Where(x => x.Tags.Contains(tag));
+
+                    foreach (var taggedScenario in allTaggedScenarios)
+                    {
+                        var executionResult =
+                            execution
+                                .ExecutionResults
+                                .FirstOrDefault(
+                                    o => o.FeatureTitle == feature.Title &&
+                                        o.ScenarioTitle == taggedScenario.Title
+                                );
+
+                        if (executionResult != null)
+                        {
+                            switch (Assess(executionResult.Status))
+                            {
+                                case TestStatusEnum.Success:
+                                    result.SecondaryValue++;
+                                    break;
+                            }
+
+                            total++;
+                        }
+                    }
+                }
+
+                result.PrimaryValue = total;
+                result.Colour = result.PrimaryValue == total ? ColourSorter.PassColour : ColourSorter.OtherColour;
+                
+                results
+                    .Add(result);
+            }
+
+            return
+                results
+                    .OrderBy(o => o.Title);
         }
 
         public TestStatusEnum Assess(int successes, int failures, int others)

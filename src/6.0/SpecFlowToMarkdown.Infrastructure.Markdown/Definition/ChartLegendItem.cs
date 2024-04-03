@@ -6,6 +6,8 @@
         
         public string Colour { get; set; }
         
-        public int Value { get; set; }
+        public int PrimaryValue { get; set; }
+        
+        public int SecondaryValue { get; set; }
     }
 }
