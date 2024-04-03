@@ -18,25 +18,25 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 {
                     Title = "Pass",
                     Colour = PassColour,
-                    PrimaryValue = passCount
+                    Value = passCount
                 },
                 new()
                 {
                     Title = "Fail",
                     Colour = FailColour,
-                    PrimaryValue = failCount
+                    Value = failCount
                 },
                 new()
                 {
                     Title = "Other",
                     Colour = OtherColour,
-                    PrimaryValue = otherCount
+                    Value = otherCount
                 }
             };
 
             return
                 result
-                    .OrderByDescending(o => o.PrimaryValue)
+                    .OrderByDescending(o => o.Value)
                     .ToList();
         }
     }

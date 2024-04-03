@@ -97,7 +97,6 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 .AppendTagChart(
                     "Tags",
                     tagSummary
-                        .ToList()
                 )
                 .AppendLine("</td>")
                 .AppendLine("</tr>")

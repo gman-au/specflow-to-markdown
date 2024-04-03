@@ -10,7 +10,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
         public static StringBuilder AppendTagChart(
             this StringBuilder stringBuilder,
             string title,
-            ICollection<ChartLegendItem> tags
+            IDictionary<string, TestSummary> results
         )
         {
             stringBuilder
@@ -31,7 +31,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
                 .AppendLine("\t\t\t\t'yAxisTickColor': \"#fff\",")
                 .AppendLine("\t\t\t\t'yAxisLineColor': \"#fff\",")
                 .AppendLine($"\t\t\t\t'backgroundColor': \"#0000\",")
-                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.OtherColour}, {ColourSorter.PassColour}\"");
+                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.OtherColour}, {ColourSorter.PassColour}, {ColourSorter.FailColour}\"");
 
             stringBuilder
                 .AppendLine("\t\t\t}")
@@ -45,26 +45,34 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
 
             var xAxis = string.Join(
                 ", ",
-                tags.Select(o => o.Title)
+                results.Keys
             );
 
             stringBuilder
                 .AppendLine($"x-axis [{xAxis}]")
                 .AppendLine($"y-axis \"Tests\"");
 
-            var barValues = string.Join(
+            var values = results.Values;
+            
+            var totalValues = string.Join(
                 ", ",
-                tags.Select(o => o.PrimaryValue)
+                values.Select(o => o.Successes + o.Failures + o.Others)
             );
 
-            var lineValues = string.Join(
+            var successValues = string.Join(
                 ", ",
-                tags.Select(o => o.SecondaryValue)
+                values.Select(o => o.Successes)
+            );
+
+            var failureValues = string.Join(
+                ", ",
+                values.Select(o => o.Failures)
             );
 
             stringBuilder
-                .AppendLine($"bar [{barValues}]")
-                .AppendLine($"line [{lineValues}]");
+                .AppendLine($"bar [{totalValues}]")
+                .AppendLine($"bar [{successValues}]")
+                .AppendLine($"bar [{failureValues}]");
 
             stringBuilder
                 .AppendLine("```");
@@ -114,7 +122,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
             foreach (var legendItem in legend)
             {
                 stringBuilder
-                    .AppendLine($"\t\"{legendItem.Title}\": {legendItem.PrimaryValue}");
+                    .AppendLine($"\t\"{legendItem.Title}\": {legendItem.Value}");
             }
 
             stringBuilder

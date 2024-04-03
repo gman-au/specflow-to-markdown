@@ -14,7 +14,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 
         public TestSummary SummariseAllSteps(TestExecution execution);
         
-        public IEnumerable<ChartLegendItem> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly);
+        public IDictionary<string, TestSummary> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly);
 
         public TestStatusEnum Assess(int successes, int failures, int others);
 

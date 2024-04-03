@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
@@ -116,9 +115,9 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public IEnumerable<ChartLegendItem> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly)
+        public IDictionary<string, TestSummary> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly)
         {
-            var results = new List<ChartLegendItem>();
+            var results = new Dictionary<string, TestSummary>();
 
             var allTags =
                 assembly
@@ -128,15 +127,13 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 
             foreach (var tag in allTags)
             {
-                var result = new ChartLegendItem
+                var result = new TestSummary
                 {
-                    Title = tag,
-                    Colour = null,
-                    PrimaryValue = 0,
-                    SecondaryValue = 0
+                    Successes = 0,
+                    Failures = 0,
+                    Others = 0,
+                    Duration = 0
                 };
-
-                var total = 0;
 
                 foreach (var feature in assembly.Features)
                 {
@@ -160,25 +157,33 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                             switch (Assess(executionResult.Status))
                             {
                                 case TestStatusEnum.Success:
-                                    result.SecondaryValue++;
+                                    result.Successes++;
+                                    break;
+                                case TestStatusEnum.Failure:
+                                    result.Failures++;
+                                    break;
+                                default:
+                                    result.Others++;
                                     break;
                             }
-
-                            total++;
                         }
                     }
                 }
 
-                result.PrimaryValue = total;
-                result.Colour = result.PrimaryValue == total ? ColourSorter.PassColour : ColourSorter.OtherColour;
-                
                 results
-                    .Add(result);
+                    .Add(
+                        tag,
+                        result
+                    );
             }
 
             return
                 results
-                    .OrderBy(o => o.Title);
+                    .OrderBy(o => o.Key)
+                    .ToDictionary(
+                        o => o.Key,
+                        o => o.Value
+                    );
         }
 
         public TestStatusEnum Assess(int successes, int failures, int others)
