@@ -73,8 +73,19 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                                 while (currInstr.OpCode == OpCodes.Ldstr)
                                 {
-                                    tags.Add(currInstr.Operand.ToString());
-                                    currInstr = 
+                                    if (currInstr.Operand != null)
+                                    {
+                                        tags.Add(
+                                            currInstr
+                                                .Operand.ToString()?
+                                                .Replace(
+                                                    ",",
+                                                    ""
+                                                )
+                                        );
+                                    }
+
+                                    currInstr =
                                         currInstr
                                             .Previous
                                             .Previous

@@ -46,6 +46,13 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 _resultSummariser
                     .SummariseAllSteps(execution);
 
+            var tagSummary =
+                _resultSummariser
+                    .SummariseAllTags(
+                        execution,
+                        assembly
+                    );
+
             // Render header
             headerBuilder
                 .AppendLine($"# {assembly.AssemblyName}");
@@ -54,7 +61,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 .AppendLine("<table>")
                 .AppendLine("<tr>")
                 .AppendLine("<td>")
-                .AppendChart(
+                .AppendPieChart(
                     "Features",
                     _colourSorter
                         .Sort(
@@ -65,7 +72,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 )
                 .AppendLine("</td>")
                 .AppendLine("<td>")
-                .AppendChart(
+                .AppendPieChart(
                     "Scenarios",
                     _colourSorter
                         .Sort(
@@ -76,7 +83,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 )
                 .AppendLine("</td>")
                 .AppendLine("<td>")
-                .AppendChart(
+                .AppendPieChart(
                     "Steps",
                     _colourSorter
                         .Sort(
@@ -84,6 +91,12 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                             stepSummary.Failures,
                             stepSummary.Others
                         )
+                )
+                .AppendLine("</td>")
+                .AppendLine("<td>")
+                .AppendTagChart(
+                    "Tags",
+                    tagSummary
                 )
                 .AppendLine("</td>")
                 .AppendLine("</tr>")
