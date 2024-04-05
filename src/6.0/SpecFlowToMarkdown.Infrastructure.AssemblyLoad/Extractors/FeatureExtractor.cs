@@ -12,11 +12,11 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         private const string FeatureSetupMethodName = "FeatureSetup";
         private const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
 
-        private readonly IScenarioExtractor _scenarioExtractor;
+        private readonly IScenarioExtractionHandler _scenarioExtractionHandler;
 
-        public FeatureExtractor(IScenarioExtractor scenarioExtractor)
+        public FeatureExtractor(IScenarioExtractionHandler scenarioExtractionHandler)
         {
-            _scenarioExtractor = scenarioExtractor;
+            _scenarioExtractionHandler = scenarioExtractionHandler;
         }
 
         public SpecFlowAssembly ExtractFeatures(AssemblyDefinition assembly)
@@ -97,7 +97,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                             };
 
                                             var scenarios =
-                                                _scenarioExtractor
+                                                _scenarioExtractionHandler
                                                     .ExtractScenarios(type);
 
                                             feature.Scenarios = scenarios;
