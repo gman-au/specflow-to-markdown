@@ -3,11 +3,18 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 {
     public class UnitScenarioExtractor : IScenarioExtractor
     {
+        public IEnumerable<string> TestCaseAttributes = new[]
+        {
+            Constants.NUnitTestCaseAttribute,
+            Constants.XUnitInlineDataAttribute
+        };
+
         public bool IsApplicable(string attributeName) =>
             attributeName.Equals(Constants.NUnitTestAttribute) ||
             attributeName.Equals(Constants.XUnitFactAttribute) ||
@@ -19,6 +26,11 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             var title = string.Empty;
             var description = string.Empty;
             var tags = new List<string>();
+
+            var hasCases =
+                method
+                    .CustomAttributes
+                    .Any(o => TestCaseAttributes.Contains(o.AttributeType.FullName));
 
             foreach (var instruction in
                      method
@@ -50,13 +62,82 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             title = currInstr.Operand.ToString();
                         }
 
-                        currInstr =
-                            currInstr
-                                .Previous
-                                .Previous
-                                .Previous
-                                .Previous
-                                .Previous;
+                        // Extract test cases
+                        var argumentNames = new List<string>();
+                        var argumentValues = new List<IEnumerable<string>>();
+
+                        if (hasCases)
+                        {
+                            // Get test case argument values
+                            var caseAttributes =
+                                method
+                                    .CustomAttributes
+                                    .Where(o => TestCaseAttributes.Contains(o.AttributeType.FullName))
+                                    .ToList();
+
+                            foreach (var caseAttribute in caseAttributes)
+                            {
+                                var constructorArguments =
+                                    caseAttribute
+                                        .ConstructorArguments;
+
+                                if (constructorArguments.Count == 1)
+                                {
+                                    var constructorArgument = constructorArguments[0];
+                                    if (constructorArgument.Type.IsArray)
+                                    {
+                                        if (constructorArgument.Value is CustomAttributeArgument[] args)
+                                        {
+                                            foreach(var arg in args)
+                                            {
+                                                //TODO: load into library
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Get test case argument names
+                            currInstr =
+                                currInstr
+                                    .Previous
+                                    .Previous
+                                    .Previous
+                                    .Previous;
+
+                            while (currInstr.OpCode == OpCodes.Ldstr)
+                            {
+                                if (currInstr.Operand != null)
+                                {
+                                    argumentNames.Add(currInstr.Operand.ToString());
+                                }
+
+                                currInstr =
+                                    currInstr
+                                        .Previous
+                                        .Previous
+                                        .Previous
+                                        .Previous
+                                        .Previous;
+                            }
+
+                            argumentNames
+                                .Reverse();
+
+                            currInstr =
+                                currInstr
+                                    .StepPrevious(15);
+                        }
+                        else
+                        {
+                            currInstr =
+                                currInstr
+                                    .Previous
+                                    .Previous
+                                    .Previous
+                                    .Previous
+                                    .Previous;
+                        }
 
                         while (currInstr.OpCode == OpCodes.Ldstr)
                         {

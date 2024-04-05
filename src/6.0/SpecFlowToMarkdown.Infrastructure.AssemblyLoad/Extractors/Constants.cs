@@ -8,6 +8,9 @@
         
         public const string FeatureInfoTypeName = "TechTalk.SpecFlow.ScenarioInfo";
         
+        public const string NUnitTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
+        public const string XUnitInlineDataAttribute = "Xunit.InlineDataAttribute";
+        
         public static readonly string[] ScenarioStepFunctions = { "And", "Given", "When", "Then" };
     }
 }
