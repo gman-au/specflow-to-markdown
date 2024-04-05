@@ -9,7 +9,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 {
     public class UnitScenarioExtractor : IScenarioExtractor
     {
-        public IEnumerable<string> TestCaseAttributes = new[]
+        private readonly IEnumerable<string> _testCaseAttributes = new[]
         {
             Constants.NUnitTestCaseAttribute,
             Constants.XUnitInlineDataAttribute
@@ -26,11 +26,12 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             var title = string.Empty;
             var description = string.Empty;
             var tags = new List<string>();
+            var scenarioCases = new List<SpecFlowCase>();
 
             var hasCases =
                 method
                     .CustomAttributes
-                    .Any(o => TestCaseAttributes.Contains(o.AttributeType.FullName));
+                    .Any(o => _testCaseAttributes.Contains(o.AttributeType.FullName));
 
             foreach (var instruction in
                      method
@@ -64,39 +65,10 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
                         // Extract test cases
                         var argumentNames = new List<string>();
-                        var argumentValues = new List<IEnumerable<string>>();
+                        var argumentValues = new List<IEnumerable<object>>();
 
                         if (hasCases)
                         {
-                            // Get test case argument values
-                            var caseAttributes =
-                                method
-                                    .CustomAttributes
-                                    .Where(o => TestCaseAttributes.Contains(o.AttributeType.FullName))
-                                    .ToList();
-
-                            foreach (var caseAttribute in caseAttributes)
-                            {
-                                var constructorArguments =
-                                    caseAttribute
-                                        .ConstructorArguments;
-
-                                if (constructorArguments.Count == 1)
-                                {
-                                    var constructorArgument = constructorArguments[0];
-                                    if (constructorArgument.Type.IsArray)
-                                    {
-                                        if (constructorArgument.Value is CustomAttributeArgument[] args)
-                                        {
-                                            foreach(var arg in args)
-                                            {
-                                                //TODO: load into library
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
                             // Get test case argument names
                             currInstr =
                                 currInstr
@@ -127,6 +99,72 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             currInstr =
                                 currInstr
                                     .StepPrevious(15);
+
+                            // Get test case argument values
+                            var caseAttributes =
+                                method
+                                    .CustomAttributes
+                                    .Where(o => _testCaseAttributes.Contains(o.AttributeType.FullName))
+                                    .ToList();
+
+                            foreach (var caseAttribute in caseAttributes)
+                            {
+                                var constructorArguments =
+                                    caseAttribute
+                                        .ConstructorArguments;
+
+                                if (constructorArguments.Count == 1)
+                                {
+                                    var constructorArgument = constructorArguments[0];
+                                    if (constructorArgument.Type.IsArray)
+                                    {
+                                        if (constructorArgument.Value is CustomAttributeArgument[] args)
+                                        {
+                                            var values =
+                                                args
+                                                    .Select(o =>
+                                                        {
+                                                            if (o.Value is CustomAttributeArgument ca)
+                                                            {
+                                                                return 
+                                                                    ca
+                                                                        .Value
+                                                                        .ToString();
+                                                            }
+                                                            return null;
+                                                        }
+                                                    )
+                                                    .ToList();
+
+                                            argumentValues
+                                                .Add(values);
+                                        }
+                                    }
+                                }
+                            }
+
+                            for (var i = 0; i < argumentValues.Count; i++)
+                            {
+                                var scenarioCase = new SpecFlowCase
+                                {
+                                    Arguments =
+                                        argumentNames
+                                            .Select(
+                                                o =>
+                                                    new SpecFlowArgument
+                                                    {
+                                                        ArgumentName = o,
+                                                        ArgumentValue =
+                                                            argumentValues[i]
+                                                                .ElementAt(argumentNames.IndexOf(o))
+                                                    }
+                                            )
+                                            .ToList()
+                                };
+
+                                scenarioCases
+                                    .Add(scenarioCase);
+                            }
                         }
                         else
                         {
@@ -215,6 +253,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             }
 
             scenario.Steps = scenarioSteps;
+            scenario.Cases = scenarioCases;
 
             return scenario;
         }
