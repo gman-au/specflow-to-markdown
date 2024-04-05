@@ -159,7 +159,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 var featureAnchor =
                     _anchorGenerator
                         .Build(
-                            $"Feature:\t{feature.Title}",
+                            $"Feature:{feature.Title}",
                             featureStatusIcon
                         );
 
@@ -201,7 +201,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         var scenarioAnchor =
                             _anchorGenerator
                                 .Build(
-                                    $"Scenario:\t{scenario.Title}",
+                                    $"Scenario:{scenario.Title}",
                                     scenarioStatusIcon
                                 );
 

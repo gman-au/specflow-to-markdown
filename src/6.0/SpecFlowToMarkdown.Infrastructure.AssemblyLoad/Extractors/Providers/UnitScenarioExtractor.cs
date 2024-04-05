@@ -4,11 +4,13 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 
-namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
+namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 {
-    public class NUnitScenarioExtractor : IScenarioExtractor
+    public class UnitScenarioExtractor : IScenarioExtractor
     {
-        public bool IsApplicable(string attributeName) => attributeName.Equals(Constants.NUnitTestAttribute);
+        public bool IsApplicable(string attributeName) =>
+            attributeName.Equals(Constants.NUnitTestAttribute) ||
+            attributeName.Equals(Constants.XUnitTestAttribute);
 
         public SpecFlowScenario ExtractScenario(MethodDefinition method)
         {
