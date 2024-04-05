@@ -10,7 +10,8 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
     {
         public bool IsApplicable(string attributeName) =>
             attributeName.Equals(Constants.NUnitTestAttribute) ||
-            attributeName.Equals(Constants.XUnitTestAttribute);
+            attributeName.Equals(Constants.XUnitFactAttribute) ||
+            attributeName.Equals(Constants.XUnitTheoryAttribute);
 
         public SpecFlowScenario ExtractScenario(MethodDefinition method)
         {

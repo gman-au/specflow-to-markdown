@@ -11,9 +11,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         private static readonly string[] CustomTestAttributeValues =
         {
             Constants.NUnitTestAttribute,
-            Constants.XUnitTestAttribute
+            Constants.XUnitFactAttribute,
+            Constants.XUnitTheoryAttribute
         };
-        private static readonly string[] ScenarioStepFunctions = { "And", "Given", "When", "Then" };
 
         private readonly IEnumerable<IScenarioExtractor> _extractors;
 
