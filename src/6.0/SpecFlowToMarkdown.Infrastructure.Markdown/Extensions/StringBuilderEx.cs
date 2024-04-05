@@ -31,7 +31,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
                 .AppendLine("\t\t\t\t'yAxisTickColor': \"#fff\",")
                 .AppendLine("\t\t\t\t'yAxisLineColor': \"#fff\",")
                 .AppendLine($"\t\t\t\t'backgroundColor': \"#0000\",")
-                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.OtherColour}, {ColourSorter.PassColour}, {ColourSorter.FailColour}\"");
+                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.OtherColourSolid}, {ColourSorter.PassColourSolid}, {ColourSorter.FailColourSolid}\"");
 
             stringBuilder
                 .AppendLine("\t\t\t}")

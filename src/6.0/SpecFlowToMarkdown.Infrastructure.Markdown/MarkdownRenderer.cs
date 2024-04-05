@@ -159,12 +159,12 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 var featureAnchor =
                     _anchorGenerator
                         .Build(
-                            $"Feature:{feature.Title}",
+                            $"Feature:\t{feature.Title}",
                             featureStatusIcon
                         );
 
                 tocBuilder
-                    .AppendLine($"<td><a href=\"#{featureAnchor}\">Feature:{feature.Title}</a></td>")
+                    .AppendLine($"<td><a href=\"#{featureAnchor}\">Feature:\t{feature.Title}</a></td>")
                     .AppendLine($"<td/>")
                     .AppendLine($"<td>{featureSuccesses} {(featureSuccesses > 0 ? $":{IconReference.IconSuitePassed}:" : null)}</td>")
                     .AppendLine($"<td>{featureFails} {(featureFails > 0 ? $":{IconReference.IconSuiteFailed}:" : null)}</td>")
@@ -201,7 +201,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         var scenarioAnchor =
                             _anchorGenerator
                                 .Build(
-                                    $"Scenario:{scenario.Title}",
+                                    $"Scenario:\t{scenario.Title}",
                                     scenarioStatusIcon
                                 );
 
@@ -213,7 +213,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         tocBuilder
                             .AppendLine("<tr>")
                             .AppendLine($"<td/>")
-                            .AppendLine($"<td><a href=\"#{scenarioAnchor}\">Scenario:{scenario.Title}</a></td>")
+                            .AppendLine($"<td><a href=\"#{scenarioAnchor}\">Scenario:\t{scenario.Title}</a></td>")
                             .AppendLine(
                                 $"<td>{(scenarioStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)}</td>"
                             )
