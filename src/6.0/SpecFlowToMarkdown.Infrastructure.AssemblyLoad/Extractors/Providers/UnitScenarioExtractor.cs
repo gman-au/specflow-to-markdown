@@ -139,7 +139,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                     .Previous;
                         }
 
-                        while (currInstr.OpCode == OpCodes.Ldstr)
+                        while (currInstr?.OpCode == OpCodes.Ldstr)
                         {
                             if (currInstr.Operand != null)
                             {
