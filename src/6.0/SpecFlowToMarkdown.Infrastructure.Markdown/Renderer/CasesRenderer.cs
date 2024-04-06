@@ -10,7 +10,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
 {
     internal static partial class ComponentRenderer
     {
-        public static void RenderCases(
+        private static void RenderCases(
             SpecFlowFeature specFlowFeature,
             SpecFlowScenario specFlowScenario,
             StringBuilder tocBuilder,
@@ -29,31 +29,51 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                     )
                     .ToList();
 
-            // Complete the header row
-            tocBuilder
-                .AppendLine($"<td/>")
-                .AppendLine($"<td/>")
-                .AppendLine($"<td/>")
-                .AppendLine($"<td/>")
-                .AppendLine($"<td/>");
+            var cases =
+                (specFlowScenario
+                    .Cases ?? Enumerable.Empty<SpecFlowCase>())
+                .ToList();
 
-            foreach (var scenarioCase in specFlowScenario.Cases)
+            foreach (var scenarioCase in cases)
             {
+                var caseIndex =
+                    cases
+                        .IndexOf(scenarioCase) + 1;
+
+                var caseAnchor =
+                    $"{specFlowScenario.Title}Case{caseIndex}"
+                        .ToAnchor();
+
                 tocBuilder
                     .AppendLine("<tr>")
                     .AppendLine($"<td/>")
                     .AppendLine($"<td/>")
-                    .AppendLine($"<td>")
+                    .AppendLine($"<td>");
+
+                tocBuilder
+                    .AppendLine("<sub>")
+                    .AppendLine($"<a href=\"#{caseAnchor}\">Case #{caseIndex}</a>")
                     .AppendLine();
+
+                var argumentsBuilder = new StringBuilder();
+
+                argumentsBuilder
+                    .AppendLine()
+                    .AppendLine("```");
 
                 foreach (var argument in scenarioCase.Arguments)
                 {
-                    tocBuilder
-                        .Append($"`{argument.ArgumentName}: {argument.ArgumentValue}`")
-                        .AppendLine();
+                    argumentsBuilder
+                        .AppendLine($"{argument.ArgumentName}: {argument.ArgumentValue}");
                 }
 
+                argumentsBuilder
+                    .AppendLine("```")
+                    .AppendLine();
+
                 tocBuilder
+                    .Append(argumentsBuilder)
+                    .AppendLine("</sub>")
                     .AppendLine($"</td>");
 
                 var caseFeatureResult =
@@ -91,8 +111,6 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                             .Status
                             .ToStatusEnum();
 
-                    var caseStatusIcon = caseStatus.ToStatusIcon();
-
                     tocBuilder
                         .AppendLine(
                             $"<td>{(caseStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)}</td>"
@@ -103,9 +121,25 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                         .AppendLine(
                             $"<td>{(caseStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)}</td>"
                         )
-                        // .AppendLine($"<td>{Math.Round(scenarioDuration, 2)}s</td>")
-                        .AppendLine($"<td>{Math.Round(10.0D, 2)}s</td>")
+                        .AppendLine($"<td>{Math.Round(caseFeatureResult.StepResults.Sum(o => o.Duration.GetValueOrDefault().TotalSeconds), 2)}s</td>")
                         .AppendLine("</tr>");
+
+                    contentBuilder
+                        .AppendLine(
+                            $"<h4> :{caseStatus.ToStatusIcon()}: <a id=\"{caseAnchor}\">Case #{caseIndex}</a></h4>"
+                        );
+
+                    contentBuilder
+                        .Append(argumentsBuilder);
+
+                    contentBuilder
+                        .AppendStepsTable(
+                            specFlowScenario,
+                            caseFeatureResult
+                        );
+
+                    contentBuilder
+                        .AppendLine();
                 }
             }
         }

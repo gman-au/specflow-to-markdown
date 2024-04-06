@@ -22,7 +22,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                     .ExecutionResults
                     .Where(o => o.FeatureTitle == specFlowFeature.Title)
                     .ToList();
-            
+
             foreach (var scenario in specFlowFeature.Scenarios)
             {
                 var scenarioResult =
@@ -62,6 +62,14 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                     // Test cases
                     if (scenario.Cases.Any())
                     {
+                        // Complete the header row
+                        tocBuilder
+                            .AppendLine($"<td/>")
+                            .AppendLine($"<td/>")
+                            .AppendLine($"<td/>")
+                            .AppendLine($"<td/>")
+                            .AppendLine($"<td/>");
+
                         RenderCases(
                             specFlowFeature,
                             scenario,
