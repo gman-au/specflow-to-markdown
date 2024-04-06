@@ -128,7 +128,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                                             {
                                                                 return 
                                                                     ca
-                                                                        .Value
+                                                                        .Value?
                                                                         .ToString();
                                                             }
                                                             return null;

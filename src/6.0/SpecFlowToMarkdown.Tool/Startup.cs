@@ -25,7 +25,6 @@ namespace SpecFlowToMarkdown.Tool
                 .AddSingleton<IScenarioExtractor, UnitScenarioExtractor>()
                 .AddSingleton<IFileWriter, FileWriter>()
                 .AddSingleton<IFileFinder, FileFinder>()
-                .AddSingleton<IAnchorGenerator, AnchorGenerator>()
                 .AddSingleton<IResultSummariser, ResultSummariser>()
                 .AddSingleton<IMarkdownRenderer, MarkdownRenderer>()
                 .AddSingleton<IColourSorter, ColourSorter>()

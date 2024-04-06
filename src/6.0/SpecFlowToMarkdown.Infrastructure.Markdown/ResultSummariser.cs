@@ -4,6 +4,7 @@ using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
+using SpecFlowToMarkdown.Infrastructure.Markdown.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown
 {
@@ -154,7 +155,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 
                         if (executionResult != null)
                         {
-                            switch (Assess(executionResult.Status))
+                            switch (executionResult.Status.ToStatusEnum())
                             {
                                 case TestStatusEnum.Success:
                                     result.Successes++;
@@ -191,17 +192,6 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             if (failures > 0) return TestStatusEnum.Failure;
             if (others > 0) return TestStatusEnum.Other;
             if (successes > 0) return TestStatusEnum.Success;
-            return TestStatusEnum.Other;
-        }
-
-        public TestStatusEnum Assess(string value)
-        {
-            switch (value)
-            {
-                case StatusOk: return TestStatusEnum.Success;
-                case StatusError: return TestStatusEnum.Failure;
-            }
-
             return TestStatusEnum.Other;
         }
     }

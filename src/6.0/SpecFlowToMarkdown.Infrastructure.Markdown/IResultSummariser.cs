@@ -17,7 +17,5 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
         public IDictionary<string, TestSummary> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly);
 
         public TestStatusEnum Assess(int successes, int failures, int others);
-
-        public TestStatusEnum Assess(string value);
     }
 }

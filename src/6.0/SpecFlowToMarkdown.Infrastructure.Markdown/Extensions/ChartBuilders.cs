@@ -5,7 +5,7 @@ using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
 {
-    public static class StringBuilderEx
+    internal static partial class StringBuilderEx
     {
         public static StringBuilder AppendTagChart(
             this StringBuilder stringBuilder,
