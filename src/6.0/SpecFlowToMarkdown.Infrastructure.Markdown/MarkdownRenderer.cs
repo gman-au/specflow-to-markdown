@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using SpecFlowToMarkdown.Domain;
+﻿using System.Text;
 using SpecFlowToMarkdown.Domain.Result;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.Markdown.Extensions;
@@ -111,15 +108,15 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             tocBuilder
                 .AppendLine("<tr>");
 
-            // Features
-            var featureSectionBuilder = new StringBuilder();
+            var contentBuilder = new StringBuilder();
+            
             foreach (var feature in assembly.Features)
             {
                 ComponentRenderer
                     .RenderFeature(
                         feature,
                         tocBuilder,
-                        featureSectionBuilder,
+                        contentBuilder,
                         execution
                     );
             }
@@ -131,9 +128,10 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             result
                 .Append(headerBuilder)
                 .Append(tocBuilder)
-                .Append(featureSectionBuilder);
+                .Append(contentBuilder);
 
-            return result;
+            return 
+                result;
         }
     }
 }

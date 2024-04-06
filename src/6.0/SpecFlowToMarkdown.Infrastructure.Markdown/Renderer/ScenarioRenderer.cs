@@ -62,94 +62,13 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                     // Test cases
                     if (scenario.Cases.Any())
                     {
-                        // Get all matching results with case arguments
-                        var caseFeatureResults =
-                            featureScenarios
-                                .Where(
-                                    o =>
-                                        o.ScenarioTitle == scenario.Title &&
-                                        o.FeatureTitle == specFlowFeature.Title
-                                )
-                                .ToList();
-
-                        // Complete the header row
-                        tocBuilder
-                            .AppendLine($"<td/>")
-                            .AppendLine($"<td/>")
-                            .AppendLine($"<td/>")
-                            .AppendLine($"<td/>")
-                            .AppendLine($"<td/>");
-
-                        foreach (var scenarioCase in scenario.Cases)
-                        {
-                            tocBuilder
-                                .AppendLine("<tr>")
-                                .AppendLine($"<td/>")
-                                .AppendLine($"<td/>")
-                                .AppendLine($"<td>")
-                                .AppendLine();
-
-                            foreach (var argument in scenarioCase.Arguments)
-                            {
-                                tocBuilder
-                                    .Append($"`{argument.ArgumentName}: {argument.ArgumentValue}`")
-                                    .AppendLine();
-                            }
-
-                            tocBuilder
-                                .AppendLine($"</td>");
-
-                            var caseFeatureResult =
-                                caseFeatureResults
-                                    .FirstOrDefault(
-                                        x =>
-                                        {
-                                            var isMatch = true;
-                                            for (var i = 0; i < scenarioCase.Arguments.Count(); i++)
-                                            {
-                                                var sourceArg =
-                                                    scenarioCase
-                                                        .Arguments
-                                                        .ElementAt(i)?
-                                                        .ArgumentValue?
-                                                        .ToString();
-
-                                                var targetArg =
-                                                    x
-                                                        .ScenarioArguments
-                                                        .ElementAt(i);
-
-                                                isMatch &=
-                                                    sourceArg == targetArg;
-                                            }
-
-                                            return isMatch;
-                                        }
-                                    );
-
-                            if (caseFeatureResult != null)
-                            {
-                                var caseStatus =
-                                    caseFeatureResult
-                                        .Status
-                                        .ToStatusEnum();
-
-                                var caseStatusIcon = scenarioStatus.ToStatusIcon();
-
-                                tocBuilder
-                                    .AppendLine(
-                                        $"<td>{(caseStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)}</td>"
-                                    )
-                                    .AppendLine(
-                                        $"<td>{(caseStatus == TestStatusEnum.Failure ? $":{IconReference.IconStepFailed}:" : null)}</td>"
-                                    )
-                                    .AppendLine(
-                                        $"<td>{(caseStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)}</td>"
-                                    )
-                                    .AppendLine($"<td>{Math.Round(scenarioDuration, 2)}s</td>")
-                                    .AppendLine("</tr>");
-                            }
-                        }
+                        RenderCases(
+                            specFlowFeature,
+                            scenario,
+                            tocBuilder,
+                            contentBuilder,
+                            execution
+                        );
                     }
                     else
                     {
