@@ -8,12 +8,12 @@ using SpecFlowToMarkdown.Infrastructure.Markdown.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown
 {
-    public class ResultSummariser : IResultSummariser
+    public static class ResultSummariser
     {
         private const string StatusOk = "OK";
         private const string StatusError = "TestError";
 
-        public TestSummary SummariseAllFeatures(TestExecution execution)
+        public static TestSummary SummariseAllFeatures(TestExecution execution)
         {
             var executionResults =
                 execution
@@ -73,7 +73,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public TestSummary SummariseAllScenarios(TestExecution execution)
+        public static TestSummary SummariseAllScenarios(TestExecution execution)
         {
             var executionResults =
                 execution
@@ -94,7 +94,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public TestSummary SummariseAllSteps(TestExecution execution)
+        public static TestSummary SummariseAllSteps(TestExecution execution)
         {
             var stepResults =
                 execution
@@ -116,7 +116,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public IDictionary<string, TestSummary> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly)
+        public static IDictionary<string, TestSummary> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly)
         {
             var results = new Dictionary<string, TestSummary>();
 
@@ -187,7 +187,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     );
         }
 
-        public TestStatusEnum Assess(int successes, int failures, int others)
+        public static TestStatusEnum Assess(int successes, int failures, int others)
         {
             if (failures > 0) return TestStatusEnum.Failure;
             if (others > 0) return TestStatusEnum.Other;

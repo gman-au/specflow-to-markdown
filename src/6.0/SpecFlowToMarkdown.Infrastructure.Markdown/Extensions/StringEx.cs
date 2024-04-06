@@ -42,5 +42,16 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
             
             return $"{iconString}{id}";
         }
+        
+
+        public static string ToStatusIcon(this TestStatusEnum result)
+        {
+            return result switch
+            {
+                TestStatusEnum.Success => IconReference.IconSuitePassed,
+                TestStatusEnum.Failure => IconReference.IconSuiteFailed,
+                _ => IconReference.IconSuiteSkipped
+            };
+        }
     }
 }
