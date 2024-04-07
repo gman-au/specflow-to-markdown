@@ -28,6 +28,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             var tags = new List<string>();
             var scenarioCases = new List<SpecFlowCase>();
 
+            var scenarioArgumentNames = new Dictionary<string, string>();
+            var scenarioArgumentValues = new List<IEnumerable<object>>();
+
             var hasCases =
                 method
                     .CustomAttributes
@@ -68,31 +71,61 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                         }
 
                         // Extract test cases
-                        var argumentNames = new Dictionary<string, string>();
-                        var argumentValues = new List<IEnumerable<object>>();
-
                         if (hasCases)
                         {
                             // Get test case argument names
                             currInstr =
                                 currInstr
-                                    .StepPrevious(4);
+                                    .StepPrevious(3);
 
-                            while (currInstr.OpCode == OpCodes.Ldstr)
+                            while (true)
                             {
-                                if (currInstr.Operand != null)
+                                string argKey = null;
+                                string argValue = null;
+
+                                if (currInstr.OpCode == OpCodes.Ldarg_S)
                                 {
-                                    var theName = currInstr.Operand.ToString();
-                                    argumentNames.Add(theName, theName);
+                                    argKey =
+                                        currInstr
+                                            .Operand
+                                            .ToString();
+                                }
+                                else if (currInstr.OpCode == OpCodes.Ldarg_3)
+                                    argKey = "3";
+                                else if (currInstr.OpCode == OpCodes.Ldarg_2)
+                                    argKey = "2";
+                                else if (currInstr.OpCode == OpCodes.Ldarg_1)
+                                    argKey = "1";
+                                else if (currInstr.OpCode == OpCodes.Ldarg_0)
+                                    argKey = "0";
+
+                                var stringLoadInstruction =
+                                    currInstr
+                                        .Previous;
+
+                                if (stringLoadInstruction.OpCode == OpCodes.Ldstr)
+                                {
+                                    argValue =
+                                        stringLoadInstruction
+                                            .Operand
+                                            .ToString();
                                 }
 
-                                currInstr =
-                                    currInstr
-                                        .StepPrevious(5);
-                            }
+                                if (!string.IsNullOrEmpty(argKey) && !string.IsNullOrEmpty(argValue))
+                                {
+                                    scenarioArgumentNames
+                                        .Add(
+                                            argKey,
+                                            argValue
+                                        );
 
-                            argumentNames
-                                .Reverse();
+                                    currInstr =
+                                        currInstr
+                                            .StepPrevious(5);
+                                }
+                                else
+                                    break;
+                            }
 
                             currInstr =
                                 currInstr
@@ -136,35 +169,45 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                                     )
                                                     .ToList();
 
-                                            argumentValues
+                                            scenarioArgumentValues
                                                 .Add(values);
                                         }
                                     }
                                 }
                             }
 
-                            for (var i = 0; i < argumentValues.Count; i++)
+                            scenarioArgumentNames =
+                                scenarioArgumentNames
+                                    .Reverse()
+                                    .ToDictionary(
+                                        o => o.Key,
+                                        o => o.Value
+                                    );
+
+                            for (var i = 0; i < scenarioArgumentValues.Count; i++)
                             {
+                                var argumentList =
+                                    scenarioArgumentNames
+                                        .Select(
+                                            o =>
+                                                new SpecFlowArgument
+                                                {
+                                                    ArgumentName = o.Value,
+                                                    ArgumentValue =
+                                                        scenarioArgumentValues[i]
+                                                            .ElementAt(
+                                                                scenarioArgumentNames
+                                                                    .Keys
+                                                                    .ToList()
+                                                                    .IndexOf(o.Key)
+                                                            )
+                                                }
+                                        )
+                                        .ToList();
+
                                 var scenarioCase = new SpecFlowCase
                                 {
-                                    Arguments =
-                                        argumentNames
-                                            .Select(
-                                                o =>
-                                                    new SpecFlowArgument
-                                                    {
-                                                        ArgumentName = o.Key,
-                                                        ArgumentValue =
-                                                            argumentValues[i]
-                                                                .ElementAt(
-                                                                    argumentNames
-                                                                        .Keys
-                                                                        .ToList()
-                                                                        .IndexOf(o.Key)
-                                                                )
-                                                    }
-                                            )
-                                            .ToList()
+                                    Arguments = argumentList
                                 };
 
                                 scenarioCases
@@ -240,10 +283,67 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             {
                                 if (mr.Name == Constants.StringFormatFunctionName)
                                 {
-                                    currInstr =
-                                        currInstr
-                                            .StepPrevious(2);
+                                    var stringFormatArguments = new List<string>();
+                                    string preFormatText = null;
 
+                                    while (true)
+                                    {
+                                        string argKey = null;
+
+                                        currInstr =
+                                            currInstr
+                                                .Previous;
+
+                                        if (currInstr.OpCode == OpCodes.Ldarg_S)
+                                        {
+                                            argKey =
+                                                currInstr
+                                                    .Operand
+                                                    .ToString();
+                                        }
+                                        else if (currInstr.OpCode == OpCodes.Ldarg_3)
+                                            argKey = "3";
+                                        else if (currInstr.OpCode == OpCodes.Ldarg_2)
+                                            argKey = "2";
+                                        else if (currInstr.OpCode == OpCodes.Ldarg_1)
+                                            argKey = "1";
+                                        else if (currInstr.OpCode == OpCodes.Ldarg_0)
+                                            argKey = "0";
+                                        else if (currInstr.OpCode == OpCodes.Ldstr)
+                                            preFormatText =
+                                                currInstr
+                                                    .Operand
+                                                    .ToString();
+
+                                        if (string.IsNullOrEmpty(argKey))
+                                            break;
+
+                                        if (scenarioArgumentNames.TryGetValue(
+                                                argKey,
+                                                out var argumentName
+                                            ))
+                                        {
+                                            stringFormatArguments
+                                                .Add($"&lt;{argumentName}&gt;");
+                                        }
+                                    }
+
+                                    if (!string.IsNullOrEmpty(preFormatText) && stringFormatArguments.Any())
+                                    {
+                                        stringFormatArguments
+                                            .Reverse();
+
+                                        text =
+                                            string
+                                                .Format(
+                                                    preFormatText,
+                                                    stringFormatArguments
+                                                        .ToArray()
+                                                );
+                                    }
+                                }
+                                else
+                                {
                                     if (currInstr.OpCode == OpCodes.Ldstr)
                                     {
                                         text =
