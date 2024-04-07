@@ -1,29 +1,18 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Web;
-using SpecFlowToMarkdown.Domain;
+﻿using System.Text;
 using SpecFlowToMarkdown.Domain.Result;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.Markdown.Extensions;
+using SpecFlowToMarkdown.Infrastructure.Markdown.Renderer;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown
 {
     public class MarkdownRenderer : IMarkdownRenderer
     {
-        private readonly IAnchorGenerator _anchorGenerator;
         private readonly IColourSorter _colourSorter;
-        private readonly IResultSummariser _resultSummariser;
 
-        public MarkdownRenderer(
-            IResultSummariser resultSummariser,
-            IColourSorter colourSorter,
-            IAnchorGenerator anchorGenerator
-        )
+        public MarkdownRenderer(IColourSorter colourSorter)
         {
-            _resultSummariser = resultSummariser;
             _colourSorter = colourSorter;
-            _anchorGenerator = anchorGenerator;
         }
 
         public StringBuilder Perform(
@@ -35,19 +24,19 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             var headerBuilder = new StringBuilder();
 
             var featureSummary =
-                _resultSummariser
+                ResultSummariser
                     .SummariseAllFeatures(execution);
 
             var scenarioSummary =
-                _resultSummariser
+                ResultSummariser
                     .SummariseAllScenarios(execution);
 
             var stepSummary =
-                _resultSummariser
+                ResultSummariser
                     .SummariseAllSteps(execution);
 
             var tagSummary =
-                _resultSummariser
+                ResultSummariser
                     .SummariseAllTags(
                         execution,
                         assembly
@@ -110,7 +99,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 .AppendLine("<table>")
                 .AppendLine("<tr>");
 
-            foreach (var header in new[] { "Feature", "Scenario", "Passed", "Failed", "Skipped", "Time" })
+            foreach (var header in new[] { "Feature", "Scenario", "Case", "Passed", "Failed", "Skipped", "Time" })
             {
                 tocBuilder
                     .AppendLine($"<th>{header}</th>");
@@ -119,210 +108,17 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             tocBuilder
                 .AppendLine("<tr>");
 
-            // Features
-            var featureSectionBuilder = new StringBuilder();
+            var contentBuilder = new StringBuilder();
+            
             foreach (var feature in assembly.Features)
             {
-                var featureScenarios =
-                    execution
-                        .ExecutionResults
-                        .Where(o => o.FeatureTitle == feature.Title)
-                        .ToList();
-
-                var featureSuccesses =
-                    featureScenarios
-                        .Count(o => _resultSummariser.Assess(o.Status) == TestStatusEnum.Success);
-
-                var featureFails =
-                    featureScenarios
-                        .Count(o => _resultSummariser.Assess(o.Status) == TestStatusEnum.Failure);
-
-                var featureOthers =
-                    featureScenarios
-                        .Count(o => _resultSummariser.Assess(o.Status) == TestStatusEnum.Other);
-
-                var featureDuration =
-                    featureScenarios
-                        .SelectMany(o => o.StepResults)
-                        .Sum(x => x.Duration.GetValueOrDefault().TotalSeconds);
-
-                var status =
-                    _resultSummariser
-                        .Assess(
-                            featureSuccesses,
-                            featureFails,
-                            featureOthers
-                        );
-
-                var featureStatusIcon = StatusIcon(status);
-
-                var featureAnchor =
-                    _anchorGenerator
-                        .Build(
-                            $"Feature:{feature.Title}",
-                            featureStatusIcon
-                        );
-
-                tocBuilder
-                    .AppendLine($"<td><a href=\"#{featureAnchor}\">Feature:{feature.Title}</a></td>")
-                    .AppendLine($"<td/>")
-                    .AppendLine($"<td>{featureSuccesses} {(featureSuccesses > 0 ? $":{IconReference.IconSuitePassed}:" : null)}</td>")
-                    .AppendLine($"<td>{featureFails} {(featureFails > 0 ? $":{IconReference.IconSuiteFailed}:" : null)}</td>")
-                    .AppendLine($"<td>{featureOthers} {(featureOthers > 0 ? $":{IconReference.IconSuiteSkipped}:" : null)}</td>")
-                    .AppendLine($"<td>{Math.Round(featureDuration, 2)}s</td>")
-                    .AppendLine();
-
-                featureSectionBuilder
-                    .AppendLine($"<h2> :{StatusIcon(status)}: <a id=\"{featureAnchor}\"><i>Feature:</i>\t{feature.Title}</a></h2>");
-
-                if (!string.IsNullOrEmpty(feature.Description))
-                {
-                    featureSectionBuilder
-                        .AppendLine()
-                        .Append(feature.Description)
-                        .AppendLine();
-                }
-
-                // Scenarios
-                foreach (var scenario in feature.Scenarios)
-                {
-                    var scenarioResult =
-                        featureScenarios
-                            .FirstOrDefault(o => o.ScenarioTitle == scenario.Title);
-
-                    if (scenarioResult != null)
-                    {
-                        var scenarioStatus =
-                            _resultSummariser
-                                .Assess(scenarioResult.Status);
-
-                        var scenarioStatusIcon = StatusIcon(scenarioStatus);
-
-                        var scenarioAnchor =
-                            _anchorGenerator
-                                .Build(
-                                    $"Scenario:{scenario.Title}",
-                                    scenarioStatusIcon
-                                );
-
-                        var scenarioDuration =
-                            scenarioResult
-                                .StepResults
-                                .Sum(o => o.Duration.GetValueOrDefault().TotalSeconds);
-
-                        tocBuilder
-                            .AppendLine("<tr>")
-                            .AppendLine($"<td/>")
-                            .AppendLine($"<td><a href=\"#{scenarioAnchor}\">Scenario:{scenario.Title}</a></td>")
-                            .AppendLine(
-                                $"<td>{(scenarioStatus == TestStatusEnum.Success ? $":{IconReference.IconStepPassed}:" : null)}</td>"
-                            )
-                            .AppendLine(
-                                $"<td>{(scenarioStatus == TestStatusEnum.Failure ? $":{IconReference.IconStepFailed}:" : null)}</td>"
-                            )
-                            .AppendLine(
-                                $"<td>{(scenarioStatus == TestStatusEnum.Other ? $":{IconReference.IconStepSkipped}:" : null)}</td>"
-                            )
-                            .AppendLine($"<td>{Math.Round(scenarioDuration, 2)}s</td>")
-                            .AppendLine("</tr>");
-
-                        featureSectionBuilder
-                            .AppendLine(
-                                $"<h3> :{StatusIcon(scenarioStatus)}: <a id=\"{scenarioAnchor}\"><i>Scenario:</i>\t{scenario.Title}</a></h3>"
-                            );
-
-                        if ((scenario.Tags ?? Enumerable.Empty<string>()).Any())
-                        {
-                            featureSectionBuilder
-                                .AppendLine()
-                                .Append($":label:");
-
-                            var tagString =
-                                string.Join(
-                                    ", ",
-                                    scenario
-                                        .Tags
-                                        .Select(
-                                            o =>
-                                                o
-                                                    .Replace(
-                                                        ",",
-                                                        ""
-                                                    )
-                                                    .Insert(
-                                                        0,
-                                                        "\\@"
-                                                    )
-                                        )
-                                );
-
-                            featureSectionBuilder
-                                .Append($" {tagString}")
-                                .AppendLine();
-                        }
-
-                        if (!string.IsNullOrEmpty(scenario.Description))
-                        {
-                            featureSectionBuilder
-                                .AppendLine()
-                                .AppendLine()
-                                .AppendLine($"`{scenario.Description.Trim()}`");
-                        }
-
-                        featureSectionBuilder
-                            .AppendLine("<table>");
-
-                        // Steps
-                        for (var i = 0; i < scenario.Steps.Count(); i++)
-                        {
-                            featureSectionBuilder
-                                .AppendLine("<tr>");
-
-                            var stepDetails =
-                                scenario
-                                    .Steps
-                                    .ElementAt(i);
-
-                            var stepResult =
-                                scenarioResult
-                                    .StepResults
-                                    .ElementAt(i);
-
-                            featureSectionBuilder
-                                .AppendLine(
-                                    $"<td>:{StatusCircle(stepResult.Status)}:</td>" +
-                                    $"<td>{FullResultText(stepDetails)}</td>" +
-                                    $"<td>{Math.Round(stepResult.Duration.GetValueOrDefault().TotalSeconds, 2)}s</td>"
-                                );
-
-                            if (!string.IsNullOrEmpty(stepResult.Error))
-                            {
-                                featureSectionBuilder
-                                    .AppendLine()
-                                    .AppendLine("<td>")
-                                    .AppendLine("<details>")
-                                    .AppendLine("<summary>Error Details</summary>")
-                                    .AppendLine("<code>")
-                                    .AppendLine(HttpUtility.HtmlEncode(stepResult.Error.ReplaceLineEndings().Trim()))
-                                    .AppendLine("</code>")
-                                    .AppendLine("</details>")
-                                    .AppendLine("</td>");
-                            }
-                            else
-                            {
-                                featureSectionBuilder
-                                    .AppendLine("<td/>");
-                            }
-
-                            featureSectionBuilder
-                                .AppendLine("</tr>");
-                        }
-
-                        featureSectionBuilder
-                            .AppendLine("</table>")
-                            .AppendLine();
-                    }
-                }
+                ComponentRenderer
+                    .RenderFeature(
+                        feature,
+                        tocBuilder,
+                        contentBuilder,
+                        execution
+                    );
             }
 
             tocBuilder
@@ -332,39 +128,10 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             result
                 .Append(headerBuilder)
                 .Append(tocBuilder)
-                .Append(featureSectionBuilder);
+                .Append(contentBuilder);
 
-            return result;
-        }
-
-        private static string FullResultText(SpecFlowExecutionStep stepDetails)
-        {
-            var result = $"<strong>{stepDetails.Keyword}</strong> {stepDetails.Text}";
-
-            return result;
-        }
-
-        private string StatusCircle(string result) =>
-            StatusCircle(_resultSummariser.Assess(result));
-
-        private static string StatusCircle(TestStatusEnum result)
-        {
-            return result switch
-            {
-                TestStatusEnum.Success => IconReference.IconStepPassed,
-                TestStatusEnum.Failure => IconReference.IconStepFailed,
-                _ => IconReference.IconStepSkipped
-            };
-        }
-
-        private static string StatusIcon(TestStatusEnum result)
-        {
-            return result switch
-            {
-                TestStatusEnum.Success => IconReference.IconSuitePassed,
-                TestStatusEnum.Failure => IconReference.IconSuiteFailed,
-                _ => IconReference.IconSuiteSkipped
-            };
+            return 
+                result;
         }
     }
 }

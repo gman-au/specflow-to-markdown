@@ -11,6 +11,8 @@ namespace SpecFlowToMarkdown.Domain.Result
         public string FeatureTitle { get; set; }
 
         public string ScenarioTitle { get; set; }
+        
+        public IEnumerable<string> ScenarioArguments { get; set; }
 
         public string Status { get; set; }
 

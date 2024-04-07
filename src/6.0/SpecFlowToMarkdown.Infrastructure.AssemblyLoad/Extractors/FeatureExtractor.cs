@@ -3,6 +3,7 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {
@@ -12,11 +13,11 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         private const string FeatureSetupMethodName = "FeatureSetup";
         private const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
 
-        private readonly IScenarioExtractor _scenarioExtractor;
+        private readonly IScenarioExtractionHandler _scenarioExtractionHandler;
 
-        public FeatureExtractor(IScenarioExtractor scenarioExtractor)
+        public FeatureExtractor(IScenarioExtractionHandler scenarioExtractionHandler)
         {
-            _scenarioExtractor = scenarioExtractor;
+            _scenarioExtractionHandler = scenarioExtractionHandler;
         }
 
         public SpecFlowAssembly ExtractFeatures(AssemblyDefinition assembly)
@@ -65,20 +66,30 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                                             var currInstr =
                                                 instruction
-                                                    .Previous
-                                                    .Previous
-                                                    .Previous;
+                                                    .StepPrevious(3);
 
                                             if (currInstr.OpCode == OpCodes.Ldstr)
                                             {
-                                                description = currInstr.Operand.ToString();
-                                                currInstr = currInstr.Previous;
+                                                description =
+                                                    currInstr
+                                                        .Operand
+                                                        .ToString();
+
+                                                currInstr =
+                                                    currInstr
+                                                        .Previous;
                                             }
 
                                             if (currInstr.OpCode == OpCodes.Ldstr)
                                             {
-                                                title = currInstr.Operand.ToString();
-                                                currInstr = currInstr.Previous;
+                                                title =
+                                                    currInstr
+                                                        .Operand
+                                                        .ToString();
+
+                                                currInstr =
+                                                    currInstr
+                                                        .Previous;
                                             }
 
                                             if (currInstr.OpCode == OpCodes.Ldstr)
@@ -97,7 +108,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                             };
 
                                             var scenarios =
-                                                _scenarioExtractor
+                                                _scenarioExtractionHandler
                                                     .ExtractScenarios(type);
 
                                             feature.Scenarios = scenarios;

@@ -4,15 +4,16 @@ using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.Result;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
+using SpecFlowToMarkdown.Infrastructure.Markdown.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown
 {
-    public class ResultSummariser : IResultSummariser
+    public static class ResultSummariser
     {
         private const string StatusOk = "OK";
         private const string StatusError = "TestError";
 
-        public TestSummary SummariseAllFeatures(TestExecution execution)
+        public static TestSummary SummariseAllFeatures(TestExecution execution)
         {
             var executionResults =
                 execution
@@ -72,7 +73,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public TestSummary SummariseAllScenarios(TestExecution execution)
+        public static TestSummary SummariseAllScenarios(TestExecution execution)
         {
             var executionResults =
                 execution
@@ -93,7 +94,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public TestSummary SummariseAllSteps(TestExecution execution)
+        public static TestSummary SummariseAllSteps(TestExecution execution)
         {
             var stepResults =
                 execution
@@ -115,7 +116,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             };
         }
 
-        public IDictionary<string, TestSummary> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly)
+        public static IDictionary<string, TestSummary> SummariseAllTags(TestExecution execution, SpecFlowAssembly assembly)
         {
             var results = new Dictionary<string, TestSummary>();
 
@@ -154,7 +155,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 
                         if (executionResult != null)
                         {
-                            switch (Assess(executionResult.Status))
+                            switch (executionResult.Status.ToStatusEnum())
                             {
                                 case TestStatusEnum.Success:
                                     result.Successes++;
@@ -186,22 +187,11 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                     );
         }
 
-        public TestStatusEnum Assess(int successes, int failures, int others)
+        public static TestStatusEnum Assess(int successes, int failures, int others)
         {
             if (failures > 0) return TestStatusEnum.Failure;
             if (others > 0) return TestStatusEnum.Other;
             if (successes > 0) return TestStatusEnum.Success;
-            return TestStatusEnum.Other;
-        }
-
-        public TestStatusEnum Assess(string value)
-        {
-            switch (value)
-            {
-                case StatusOk: return TestStatusEnum.Success;
-                case StatusError: return TestStatusEnum.Failure;
-            }
-
             return TestStatusEnum.Other;
         }
     }

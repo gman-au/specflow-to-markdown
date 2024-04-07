@@ -11,5 +11,7 @@ namespace SpecFlowToMarkdown.Domain.TestAssembly
         public IEnumerable<string> Tags { get; set; }
 
         public IEnumerable<SpecFlowExecutionStep> Steps { get; set; }
+        
+        public IEnumerable<SpecFlowCase> Cases { get; set; }
     }
 }

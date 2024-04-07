@@ -5,7 +5,7 @@ using SpecFlowToMarkdown.Infrastructure.Markdown.Definition;
 
 namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
 {
-    public static class StringBuilderEx
+    internal static partial class StringBuilderEx
     {
         public static StringBuilder AppendTagChart(
             this StringBuilder stringBuilder,
@@ -31,7 +31,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
                 .AppendLine("\t\t\t\t'yAxisTickColor': \"#fff\",")
                 .AppendLine("\t\t\t\t'yAxisLineColor': \"#fff\",")
                 .AppendLine($"\t\t\t\t'backgroundColor': \"#0000\",")
-                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.OtherColour}, {ColourSorter.PassColour}, {ColourSorter.FailColour}\"");
+                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.OtherColourSolid}, {ColourSorter.PassColourSolid}, {ColourSorter.FailColourSolid}\"");
 
             stringBuilder
                 .AppendLine("\t\t\t}")
