@@ -91,6 +91,13 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                                             .ArgumentValue?
                                             .ToString();
 
+                                    if (i >= x.ScenarioArguments.Count())
+                                    {
+                                        throw new Exception(
+                                            "Mismatch between configured arguments and test execution results; please re-run the tests and try again."
+                                        );
+                                    }
+
                                     var targetArg =
                                         x
                                             .ScenarioArguments

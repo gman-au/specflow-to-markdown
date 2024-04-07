@@ -41,7 +41,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             {
                 if (instruction.Operand is MethodReference mr)
                 {
-                    if (mr.DeclaringType.FullName == Constants.FeatureInfoTypeName)
+                    if (mr.DeclaringType.FullName == Constants.ScenarioInfoTypeName)
                     {
                         var currInstr =
                             instruction
@@ -49,26 +49,26 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
                         if (currInstr.OpCode == OpCodes.Ldstr)
                         {
-                            description = 
+                            description =
                                 currInstr
                                     .Operand
                                     .ToString();
                         }
 
-                        currInstr = 
+                        currInstr =
                             currInstr
                                 .Previous;
 
                         if (currInstr.OpCode == OpCodes.Ldstr)
                         {
-                            title = 
+                            title =
                                 currInstr
                                     .Operand
                                     .ToString();
                         }
 
                         // Extract test cases
-                        var argumentNames = new List<string>();
+                        var argumentNames = new Dictionary<string, string>();
                         var argumentValues = new List<IEnumerable<object>>();
 
                         if (hasCases)
@@ -82,7 +82,8 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             {
                                 if (currInstr.Operand != null)
                                 {
-                                    argumentNames.Add(currInstr.Operand.ToString());
+                                    var theName = currInstr.Operand.ToString();
+                                    argumentNames.Add(theName, theName);
                                 }
 
                                 currInstr =
@@ -119,15 +120,17 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                         {
                                             var values =
                                                 args
-                                                    .Select(o =>
+                                                    .Select(
+                                                        o =>
                                                         {
                                                             if (o.Value is CustomAttributeArgument ca)
                                                             {
-                                                                return 
+                                                                return
                                                                     ca
                                                                         .Value?
                                                                         .ToString();
                                                             }
+
                                                             return null;
                                                         }
                                                     )
@@ -150,10 +153,15 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                                 o =>
                                                     new SpecFlowArgument
                                                     {
-                                                        ArgumentName = o,
+                                                        ArgumentName = o.Key,
                                                         ArgumentValue =
                                                             argumentValues[i]
-                                                                .ElementAt(argumentNames.IndexOf(o))
+                                                                .ElementAt(
+                                                                    argumentNames
+                                                                        .Keys
+                                                                        .ToList()
+                                                                        .IndexOf(o.Key)
+                                                                )
                                                     }
                                             )
                                             .ToList()
@@ -225,6 +233,26 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                 currInstr
                                     .Operand
                                     .ToString();
+                        }
+                        else if (currInstr.OpCode == OpCodes.Call)
+                        {
+                            if (currInstr.Operand is MethodReference mr)
+                            {
+                                if (mr.Name == Constants.StringFormatFunctionName)
+                                {
+                                    currInstr =
+                                        currInstr
+                                            .StepPrevious(2);
+
+                                    if (currInstr.OpCode == OpCodes.Ldstr)
+                                    {
+                                        text =
+                                            currInstr
+                                                .Operand
+                                                .ToString();
+                                    }
+                                }
+                            }
                         }
 
                         var executionStep = new SpecFlowExecutionStep

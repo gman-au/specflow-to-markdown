@@ -6,11 +6,13 @@
         public const string XUnitFactAttribute = "Xunit.SkippableFactAttribute";
         public const string XUnitTheoryAttribute = "Xunit.SkippableTheoryAttribute";
         
-        public const string FeatureInfoTypeName = "TechTalk.SpecFlow.ScenarioInfo";
+        public const string ScenarioInfoTypeName = "TechTalk.SpecFlow.ScenarioInfo";
         
         public const string NUnitTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
         public const string XUnitInlineDataAttribute = "Xunit.InlineDataAttribute";
         
         public static readonly string[] ScenarioStepFunctions = { "And", "Given", "When", "Then" };
+        
+        public const string StringFormatFunctionName = "Format";
     }
 }
