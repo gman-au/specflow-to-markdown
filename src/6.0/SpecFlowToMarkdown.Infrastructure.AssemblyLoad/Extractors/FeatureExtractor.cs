@@ -3,6 +3,7 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {
@@ -65,20 +66,30 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                                             var currInstr =
                                                 instruction
-                                                    .Previous
-                                                    .Previous
-                                                    .Previous;
+                                                    .StepPrevious(3);
 
                                             if (currInstr.OpCode == OpCodes.Ldstr)
                                             {
-                                                description = currInstr.Operand.ToString();
-                                                currInstr = currInstr.Previous;
+                                                description =
+                                                    currInstr
+                                                        .Operand
+                                                        .ToString();
+
+                                                currInstr =
+                                                    currInstr
+                                                        .Previous;
                                             }
 
                                             if (currInstr.OpCode == OpCodes.Ldstr)
                                             {
-                                                title = currInstr.Operand.ToString();
-                                                currInstr = currInstr.Previous;
+                                                title =
+                                                    currInstr
+                                                        .Operand
+                                                        .ToString();
+
+                                                currInstr =
+                                                    currInstr
+                                                        .Previous;
                                             }
 
                                             if (currInstr.OpCode == OpCodes.Ldstr)

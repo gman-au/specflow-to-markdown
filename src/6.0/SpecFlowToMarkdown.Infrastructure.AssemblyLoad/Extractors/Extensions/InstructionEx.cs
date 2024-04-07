@@ -6,7 +6,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions
     {
         public static Instruction StepPrevious(this Instruction instruction, int times)
         {
-            for (var i = 0; i <= times && instruction != null; i++)
+            for (var i = 0; i < times && instruction != null; i++)
             {
                 instruction =
                     instruction

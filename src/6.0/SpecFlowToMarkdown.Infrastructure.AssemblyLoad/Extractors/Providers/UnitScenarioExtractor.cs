@@ -45,22 +45,26 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                     {
                         var currInstr =
                             instruction
-                                .Previous
-                                .Previous
-                                .Previous
-                                .Previous
+                                .StepPrevious(5);
+
+                        if (currInstr.OpCode == OpCodes.Ldstr)
+                        {
+                            description = 
+                                currInstr
+                                    .Operand
+                                    .ToString();
+                        }
+
+                        currInstr = 
+                            currInstr
                                 .Previous;
 
                         if (currInstr.OpCode == OpCodes.Ldstr)
                         {
-                            description = currInstr.Operand.ToString();
-                        }
-
-                        currInstr = currInstr.Previous;
-
-                        if (currInstr.OpCode == OpCodes.Ldstr)
-                        {
-                            title = currInstr.Operand.ToString();
+                            title = 
+                                currInstr
+                                    .Operand
+                                    .ToString();
                         }
 
                         // Extract test cases
@@ -72,10 +76,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             // Get test case argument names
                             currInstr =
                                 currInstr
-                                    .Previous
-                                    .Previous
-                                    .Previous
-                                    .Previous;
+                                    .StepPrevious(4);
 
                             while (currInstr.OpCode == OpCodes.Ldstr)
                             {
@@ -86,11 +87,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
                                 currInstr =
                                     currInstr
-                                        .Previous
-                                        .Previous
-                                        .Previous
-                                        .Previous
-                                        .Previous;
+                                        .StepPrevious(5);
                             }
 
                             argumentNames
@@ -170,11 +167,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                         {
                             currInstr =
                                 currInstr
-                                    .Previous
-                                    .Previous
-                                    .Previous
-                                    .Previous
-                                    .Previous;
+                                    .StepPrevious(5);
                         }
 
                         while (currInstr?.OpCode == OpCodes.Ldstr)
@@ -193,10 +186,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
                             currInstr =
                                 currInstr
-                                    .Previous
-                                    .Previous
-                                    .Previous
-                                    .Previous;
+                                    .StepPrevious(4);
                         }
                     }
                 }
@@ -227,10 +217,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
                         var currInstr =
                             instruction
-                                .Previous
-                                .Previous
-                                .Previous
-                                .Previous;
+                                .StepPrevious(4);
 
                         if (currInstr.OpCode == OpCodes.Ldstr)
                         {
