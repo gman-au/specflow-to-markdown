@@ -23,6 +23,7 @@ namespace SpecFlowToMarkdown.Tool
                 .AddSingleton<IFeatureExtractor, FeatureExtractor>()
                 .AddSingleton<IScenarioExtractionHandler, ScenarioExtractionHandler>()
                 .AddSingleton<IScenarioExtractor, UnitScenarioExtractor>()
+                .AddSingleton<IScenarioExtractor, MsTestScenarioExtractor>()
                 .AddSingleton<IFileWriter, FileWriter>()
                 .AddSingleton<IFileFinder, FileFinder>()
                 .AddSingleton<IMarkdownRenderer, MarkdownRenderer>()

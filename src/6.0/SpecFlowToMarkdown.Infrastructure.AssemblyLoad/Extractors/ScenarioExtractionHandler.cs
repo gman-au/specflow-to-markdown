@@ -12,7 +12,8 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         {
             Constants.NUnitTestAttribute,
             Constants.XUnitFactAttribute,
-            Constants.XUnitTheoryAttribute
+            Constants.XUnitTheoryAttribute,
+            Constants.MsTestTestAttribute
         };
 
         private readonly IEnumerable<IScenarioExtractor> _extractors;
@@ -28,42 +29,23 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
             foreach (var method in type.Methods)
             {
-                if (method.CustomAttributes
-                    .Any(
-                        o =>
-                            CustomTestAttributeValues
-                                .Contains(
-                                    o
-                                        .AttributeType.FullName
-                                )
-                    ))
-                {
-                    var attribute =
-                        method
-                            .CustomAttributes
-                            .First(
-                                o =>
-                                    CustomTestAttributeValues
-                                        .Contains(
-                                            o
-                                                .AttributeType.FullName
-                                        )
-                            );
+                var applicableExtractor =
+                    _extractors
+                        .FirstOrDefault(o => o.IsApplicable(method));
+                // .FirstOrDefault(o => o.IsApplicable(attribute.AttributeType.FullName));
 
-                    var applicableExtractor =
-                        _extractors
-                            .FirstOrDefault(o => o.IsApplicable(attribute.AttributeType.FullName));
+                if (applicableExtractor == null)
+                    continue;
 
-                    if (applicableExtractor == null)
-                        throw new Exception($"No handler has been found for test attribute {attribute.AttributeType.FullName}");
+                var scenario =
+                    applicableExtractor
+                        .ExtractScenario(
+                            method,
+                            type
+                        );
 
-                    var scenario =
-                        applicableExtractor
-                            .ExtractScenario(method);
-
-                    results
-                        .Add(scenario);
-                }
+                results
+                    .Add(scenario);
             }
 
             return results;
