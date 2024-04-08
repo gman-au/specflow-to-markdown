@@ -175,34 +175,40 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
             {
                 _logger
                     .LogInformation($"DebuggableAttribute found");
-                
-                var debuggingMode =
-                    (debuggableAttribute
-                        .ConstructorArguments ?? Enumerable.Empty<CustomAttributeArgument>())
-                        .FirstOrDefault(o => o.Type.FullName == DebuggingModeAttributeName);
 
-                if (debuggingMode.Value != null)
+                foreach (var constructorArgument in debuggableAttribute.ConstructorArguments ?? Enumerable.Empty<CustomAttributeArgument>())
                 {
-                    _logger
-                        .LogInformation($"Debugging attribute value: [{debuggingMode.Value}]");
+                    if (constructorArgument.Type.FullName == DebuggingModeAttributeName)
+                    {
+                        var debuggingMode = constructorArgument;
+                        
+                        _logger
+                            .LogInformation("DebuggableAttribute ConstructorArgument found");
+                        
+                        if (debuggingMode.Value != null)
+                        {
+                            _logger
+                                .LogInformation($"Debugging attribute value: [{debuggingMode.Value}]");
 
-                    var flagValue = 
-                        debuggingMode
-                            .Value?
-                            .ToString();
+                            var flagValue = 
+                                debuggingMode
+                                    .Value?
+                                    .ToString();
 
-                    if (string.IsNullOrEmpty(flagValue))
-                        return false;
+                            if (string.IsNullOrEmpty(flagValue))
+                                return false;
                     
-                    var attributes =
-                        (DebuggableAttribute.DebuggingModes)Enum.Parse(
-                            typeof(DebuggableAttribute.DebuggingModes),
-                            flagValue
-                        );
+                            var attributes =
+                                (DebuggableAttribute.DebuggingModes)Enum.Parse(
+                                    typeof(DebuggableAttribute.DebuggingModes),
+                                    flagValue
+                                );
                     
-                    return
-                        attributes
-                            .HasFlag(DebuggableAttribute.DebuggingModes.Default);
+                            return
+                                attributes
+                                    .HasFlag(DebuggableAttribute.DebuggingModes.Default);
+                        }
+                    }
                 }
             }
 
