@@ -37,11 +37,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
             
             _logger
                 .LogInformation($"Assembly name: [{assemblyName}]");
-            
-            var isDebug = IsDebugBuild(assembly);
-            
-            _logger
-                .LogInformation($"Debug build: [{isDebug}]");
 
             var result = new SpecFlowAssembly
             {
@@ -134,7 +129,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                                             var scenarios =
                                                 _scenarioExtractionHandler
-                                                    .ExtractScenarios(type, isDebug);
+                                                    .ExtractScenarios(type);
 
                                             feature.Scenarios = scenarios;
 
@@ -152,67 +147,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
             result.Features = resultFeatures;
 
             return result;
-        }
-        
-        private bool IsDebugBuild(ICustomAttributeProvider assembly)
-        {
-            _logger
-                .LogInformation($"Loading custom attributes for assembly");
-
-            var customAttributes =
-                (assembly?
-                    .CustomAttributes ?? Enumerable.Empty<CustomAttribute>())
-                .ToList();
-            
-            _logger
-                .LogInformation($"Custom attributes loaded [{customAttributes.Count}]");
-
-            var debuggableAttribute =
-                customAttributes
-                    .FirstOrDefault(o => o.AttributeType.FullName == typeof(DebuggableAttribute).FullName);
-
-            if (debuggableAttribute != null)
-            {
-                _logger
-                    .LogInformation($"DebuggableAttribute found");
-
-                foreach (var constructorArgument in debuggableAttribute.ConstructorArguments ?? Enumerable.Empty<CustomAttributeArgument>())
-                {
-                    if (constructorArgument.Type.FullName == DebuggingModeAttributeName)
-                    {
-                        var debuggingMode = constructorArgument;
-                        
-                        _logger
-                            .LogInformation("DebuggableAttribute ConstructorArgument found");
-                        
-                        if (debuggingMode.Value != null)
-                        {
-                            _logger
-                                .LogInformation($"Debugging attribute value: [{debuggingMode.Value}]");
-
-                            var flagValue = 
-                                debuggingMode
-                                    .Value?
-                                    .ToString();
-
-                            if (string.IsNullOrEmpty(flagValue))
-                                return false;
-                    
-                            var attributes =
-                                (DebuggableAttribute.DebuggingModes)Enum.Parse(
-                                    typeof(DebuggableAttribute.DebuggingModes),
-                                    flagValue
-                                );
-                    
-                            return
-                                attributes
-                                    .HasFlag(DebuggableAttribute.DebuggingModes.Default);
-                        }
-                    }
-                }
-            }
-
-            return false;
         }
     }
 }

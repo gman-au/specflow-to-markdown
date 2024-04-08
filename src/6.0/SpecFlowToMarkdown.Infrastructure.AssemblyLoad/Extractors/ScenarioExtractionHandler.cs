@@ -22,7 +22,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
             _extractors = extractors;
         }
 
-        public IEnumerable<SpecFlowScenario> ExtractScenarios(TypeDefinition type, bool isDebug)
+        public IEnumerable<SpecFlowScenario> ExtractScenarios(TypeDefinition type)
         {
             var results = new List<SpecFlowScenario>();
 
@@ -59,7 +59,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                     var scenario =
                         applicableExtractor
-                            .ExtractScenario(method, isDebug);
+                            .ExtractScenario(method);
 
                     results
                         .Add(scenario);

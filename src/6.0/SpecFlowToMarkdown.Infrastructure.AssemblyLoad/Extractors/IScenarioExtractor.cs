@@ -7,6 +7,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
     {
         public bool IsApplicable(string attributeName);
 
-        public SpecFlowScenario ExtractScenario(MethodDefinition method, bool isDebug);
+        public SpecFlowScenario ExtractScenario(MethodDefinition method);
     }
 }
