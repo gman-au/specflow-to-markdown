@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
@@ -13,6 +15,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         private const string CustomFeatureAttributeValue = "TechTalk.SpecFlow";
         private const string FeatureSetupMethodName = "FeatureSetup";
         private const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
+        private const string DebuggingModeAttributeName = "System.Diagnostics.DebuggableAttribute/DebuggingModes";
 
         private readonly IScenarioExtractionHandler _scenarioExtractionHandler;
         private readonly ILogger<FeatureExtractor> _logger;
@@ -24,13 +27,18 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
             _scenarioExtractionHandler = scenarioExtractionHandler;
             _logger = logger;
         }
-
+        
         public SpecFlowAssembly ExtractFeatures(AssemblyDefinition assembly)
         {
             var assemblyName = assembly.Name.Name;
+
+            var isDebug = IsDebugBuild(assembly);
             
             _logger
                 .LogInformation($"Assembly name: [{assemblyName}]");
+            
+            _logger
+                .LogInformation($"Debug build: [{isDebug}]");
 
             var result = new SpecFlowAssembly
             {
@@ -123,7 +131,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                                             var scenarios =
                                                 _scenarioExtractionHandler
-                                                    .ExtractScenarios(type);
+                                                    .ExtractScenarios(type, isDebug);
 
                                             feature.Scenarios = scenarios;
 
@@ -141,6 +149,39 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
             result.Features = resultFeatures;
 
             return result;
+        }
+        
+        private static bool IsDebugBuild(AssemblyDefinition assembly)
+        {
+            var customAttributes =
+                assembly
+                    .CustomAttributes;
+
+            var debuggableAttribute =
+                customAttributes
+                    .FirstOrDefault(o => o.AttributeType.FullName == typeof(DebuggableAttribute).FullName);
+
+            if (debuggableAttribute != null)
+            {
+                var debuggingMode =
+                    debuggableAttribute
+                        .ConstructorArguments
+                        .FirstOrDefault(o => o.Type.FullName == DebuggingModeAttributeName);
+
+                if (debuggingMode.Value != null)
+                {
+                    var attributes =
+                        (DebuggableAttribute.DebuggingModes)Enum.Parse(
+                            typeof(DebuggableAttribute.DebuggingModes),
+                            debuggingMode.Value?.ToString()
+                        );
+                    return
+                        attributes
+                            .HasFlag(DebuggableAttribute.DebuggingModes.Default);
+                }
+            }
+
+            return false;
         }
     }
 }

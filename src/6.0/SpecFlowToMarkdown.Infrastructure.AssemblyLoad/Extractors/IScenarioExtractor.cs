@@ -6,7 +6,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
     public interface IScenarioExtractor
     {
         public bool IsApplicable(string attributeName);
-        
-        public SpecFlowScenario ExtractScenario(MethodDefinition method);
+
+        public SpecFlowScenario ExtractScenario(MethodDefinition method, bool isDebug);
     }
 }
