@@ -28,7 +28,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             _logger = logger;
         }
 
-        public SpecFlowScenario ExtractScenario(MethodDefinition method)
+        public SpecFlowScenario ExtractScenario(MethodDefinition method, bool isDebug)
         {
             // Extract Scenario
             var title = string.Empty;
@@ -90,7 +90,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             // Get test case argument names
                             currInstr =
                                 currInstr
-                                    .StepPrevious(3);
+                                    .StepPrevious(isDebug ? 3 : 2);
 
                             while (true)
                             {
@@ -135,7 +135,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
                                     currInstr =
                                         currInstr
-                                            .StepPrevious(5);
+                                            .StepPrevious(isDebug ? 5 : 4);
                                 }
                                 else
                                     break;
