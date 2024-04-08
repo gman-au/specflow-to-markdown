@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
@@ -28,7 +29,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             _logger = logger;
         }
 
-        public SpecFlowScenario ExtractScenario(MethodDefinition method, bool isDebug)
+        public SpecFlowScenario ExtractScenario(MethodDefinition method)
         {
             // Extract Scenario
             var title = string.Empty;
@@ -86,60 +87,79 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                         {
                             _logger
                                 .LogInformation($"Scenario [{title}]; found {testCases} test cases");
-                            
-                            // Get test case argument names
-                            currInstr =
-                                currInstr
-                                    .StepPrevious(isDebug ? 3 : 2);
 
-                            while (true)
+                            var buildConfigurations = new List<Tuple<int, int>>
                             {
-                                string argKey = null;
-                                string argValue = null;
+                                new(3, 5), // debug
+                                new(2, 4)  // release
+                            };
 
-                                if (currInstr.OpCode == OpCodes.Ldarg_S)
-                                {
-                                    argKey =
-                                        currInstr
-                                            .Operand
-                                            .ToString();
-                                }
-                                else if (currInstr.OpCode == OpCodes.Ldarg_3)
-                                    argKey = "3";
-                                else if (currInstr.OpCode == OpCodes.Ldarg_2)
-                                    argKey = "2";
-                                else if (currInstr.OpCode == OpCodes.Ldarg_1)
-                                    argKey = "1";
-                                else if (currInstr.OpCode == OpCodes.Ldarg_0)
-                                    argKey = "0";
+                            var startingInstruction = currInstr;
 
-                                var stringLoadInstruction =
+                            foreach (var buildConfiguration in buildConfigurations)
+                            {
+                                currInstr = startingInstruction;
+                                
+                                // Get test case argument names
+                                currInstr =
                                     currInstr
-                                        .Previous;
+                                        .StepPrevious(buildConfiguration.Item1);
 
-                                if (stringLoadInstruction.OpCode == OpCodes.Ldstr)
+                                while (true)
                                 {
-                                    argValue =
-                                        stringLoadInstruction
-                                            .Operand
-                                            .ToString();
-                                }
+                                    string argKey = null;
+                                    string argValue = null;
 
-                                if (!string.IsNullOrEmpty(argKey) && !string.IsNullOrEmpty(argValue))
-                                {
-                                    scenarioArgumentNames
-                                        .Add(
-                                            argKey,
-                                            argValue
-                                        );
+                                    if (currInstr.OpCode == OpCodes.Ldarg_S)
+                                    {
+                                        argKey =
+                                            currInstr
+                                                .Operand
+                                                .ToString();
+                                    }
+                                    else if (currInstr.OpCode == OpCodes.Ldarg_3)
+                                        argKey = "3";
+                                    else if (currInstr.OpCode == OpCodes.Ldarg_2)
+                                        argKey = "2";
+                                    else if (currInstr.OpCode == OpCodes.Ldarg_1)
+                                        argKey = "1";
+                                    else if (currInstr.OpCode == OpCodes.Ldarg_0)
+                                        argKey = "0";
 
-                                    currInstr =
+                                    var stringLoadInstruction =
                                         currInstr
-                                            .StepPrevious(isDebug ? 5 : 4);
+                                            .Previous;
+
+                                    if (stringLoadInstruction.OpCode == OpCodes.Ldstr)
+                                    {
+                                        argValue =
+                                            stringLoadInstruction
+                                                .Operand
+                                                .ToString();
+                                    }
+
+                                    if (!string.IsNullOrEmpty(argKey) && !string.IsNullOrEmpty(argValue))
+                                    {
+                                        scenarioArgumentNames
+                                            .Add(
+                                                argKey,
+                                                argValue
+                                            );
+
+                                        currInstr =
+                                            currInstr
+                                                .StepPrevious(buildConfiguration.Item2);
+                                    }
+                                    else
+                                        break;
                                 }
-                                else
+
+                                if (scenarioArgumentNames.Count > 0)
                                     break;
                             }
+
+                            if (scenarioArgumentNames.Count == 0)
+                                throw new Exception("Could not extract test cases from assembly; please try again with a different build configuration");
 
                             currInstr =
                                 currInstr
