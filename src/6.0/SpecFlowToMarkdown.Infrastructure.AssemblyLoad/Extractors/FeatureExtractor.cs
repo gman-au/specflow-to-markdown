@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
@@ -14,15 +15,22 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         private const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
 
         private readonly IScenarioExtractionHandler _scenarioExtractionHandler;
+        private readonly ILogger<FeatureExtractor> _logger;
 
-        public FeatureExtractor(IScenarioExtractionHandler scenarioExtractionHandler)
+        public FeatureExtractor(
+            IScenarioExtractionHandler scenarioExtractionHandler, 
+            ILogger<FeatureExtractor> logger)
         {
             _scenarioExtractionHandler = scenarioExtractionHandler;
+            _logger = logger;
         }
 
         public SpecFlowAssembly ExtractFeatures(AssemblyDefinition assembly)
         {
             var assemblyName = assembly.Name.Name;
+            
+            _logger
+                .LogInformation($"Assembly name: [{assemblyName}]");
 
             var result = new SpecFlowAssembly
             {
@@ -46,6 +54,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                     )
                         ))
                     {
+                        _logger
+                            .LogInformation($"Found {type.Methods.Count} feature methods in assembly [{assemblyName}]");
+                        
                         foreach (var method in type.Methods)
                         {
                             if (method.Name == FeatureSetupMethodName)
@@ -86,6 +97,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                                                     currInstr
                                                         .Operand
                                                         .ToString();
+                                                
+                                                _logger
+                                                    .LogInformation($"Extracted feature: [{title}]");
 
                                                 currInstr =
                                                     currInstr

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
@@ -19,6 +20,13 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             attributeName.Equals(Constants.NUnitTestAttribute) ||
             attributeName.Equals(Constants.XUnitFactAttribute) ||
             attributeName.Equals(Constants.XUnitTheoryAttribute);
+        
+        private readonly ILogger<FeatureExtractor> _logger;
+
+        public UnitScenarioExtractor(ILogger<FeatureExtractor> logger)
+        {
+            _logger = logger;
+        }
 
         public SpecFlowScenario ExtractScenario(MethodDefinition method)
         {
@@ -31,10 +39,10 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             var scenarioArgumentNames = new Dictionary<string, string>();
             var scenarioArgumentValues = new List<IEnumerable<object>>();
 
-            var hasCases =
+            var testCases =
                 method
                     .CustomAttributes
-                    .Any(o => _testCaseAttributes.Contains(o.AttributeType.FullName));
+                    .Count(o => _testCaseAttributes.Contains(o.AttributeType.FullName));
 
             foreach (var instruction in
                      method
@@ -68,11 +76,17 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                 currInstr
                                     .Operand
                                     .ToString();
+                                                
+                            _logger
+                                .LogInformation($"Extracted scenario: [{title}]");
                         }
 
                         // Extract test cases
-                        if (hasCases)
+                        if (testCases > 0)
                         {
+                            _logger
+                                .LogInformation($"Scenario [{title}]; found {testCases} test cases");
+                            
                             // Get test case argument names
                             currInstr =
                                 currInstr
@@ -209,6 +223,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                 {
                                     Arguments = argumentList
                                 };
+                                
+                                _logger
+                                    .LogInformation($"Extracted test case: {{{string.Join(", ", scenarioCase.Arguments.Select(o => $"\"{o.ArgumentName}\":\"{o.ArgumentValue}\""))}}}");
 
                                 scenarioCases
                                     .Add(scenarioCase);
@@ -360,6 +377,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             Keyword = keyword,
                             Text = text
                         };
+                        
+                        _logger
+                            .LogInformation($"Extracted test step [{executionStep.Keyword} {executionStep.Text}]");
 
                         scenarioSteps
                             .Add(executionStep);
