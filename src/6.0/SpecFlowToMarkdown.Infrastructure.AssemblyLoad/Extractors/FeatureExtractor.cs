@@ -156,31 +156,50 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         
         private bool IsDebugBuild(ICustomAttributeProvider assembly)
         {
+            _logger
+                .LogDebug($"Loading custom attributes for assembly");
+
             var customAttributes =
-                assembly
-                    .CustomAttributes;
+                (assembly?
+                    .CustomAttributes ?? Enumerable.Empty<CustomAttribute>())
+                .ToList();
+            
+            _logger
+                .LogDebug($"Custom attributes loaded [{customAttributes.Count}]");
 
             var debuggableAttribute =
-                (customAttributes ?? Enumerable.Empty<CustomAttribute>())
+                customAttributes
                     .FirstOrDefault(o => o.AttributeType.FullName == typeof(DebuggableAttribute).FullName);
 
             if (debuggableAttribute != null)
             {
+                _logger
+                    .LogDebug($"DebuggableAttribute found");
+                
                 var debuggingMode =
-                    debuggableAttribute
-                        .ConstructorArguments
+                    (debuggableAttribute
+                        .ConstructorArguments ?? Enumerable.Empty<CustomAttributeArgument>())
                         .FirstOrDefault(o => o.Type.FullName == DebuggingModeAttributeName);
 
                 if (debuggingMode.Value != null)
                 {
                     _logger
                         .LogInformation($"Debugging attribute value: [{debuggingMode.Value}]");
+
+                    var flagValue = 
+                        debuggingMode
+                            .Value?
+                            .ToString();
+
+                    if (string.IsNullOrEmpty(flagValue))
+                        return false;
                     
                     var attributes =
                         (DebuggableAttribute.DebuggingModes)Enum.Parse(
                             typeof(DebuggableAttribute.DebuggingModes),
-                            (debuggingMode.Value ?? string.Empty).ToString()
+                            flagValue
                         );
+                    
                     return
                         attributes
                             .HasFlag(DebuggableAttribute.DebuggingModes.Default);
