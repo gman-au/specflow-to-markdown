@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
@@ -15,7 +13,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         private const string CustomFeatureAttributeValue = "TechTalk.SpecFlow";
         private const string FeatureSetupMethodName = "FeatureSetup";
         private const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
-        private const string DebuggingModeAttributeName = "System.Diagnostics.DebuggableAttribute/DebuggingModes";
 
         private readonly IScenarioExtractionHandler _scenarioExtractionHandler;
         private readonly ILogger<FeatureExtractor> _logger;

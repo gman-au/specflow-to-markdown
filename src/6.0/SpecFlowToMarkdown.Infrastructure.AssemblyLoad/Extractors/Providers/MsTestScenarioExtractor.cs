@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -9,24 +10,18 @@ using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 {
-    public class UnitScenarioExtractor : IScenarioExtractor
+    public class MsTestScenarioExtractor : IScenarioExtractor
     {
-        private readonly IEnumerable<string> _testCaseAttributes = new[]
-        {
-            Constants.NUnitTestCaseAttribute,
-            Constants.XUnitInlineDataAttribute
-        };
-        
-        private static readonly string[] XOrNUnitTestAttributeValues =
-        {
-            Constants.NUnitTestAttribute,
-            Constants.XUnitFactAttribute,
-            Constants.XUnitTheoryAttribute
-        };
-        
         private readonly ILogger<FeatureExtractor> _logger;
 
-        public UnitScenarioExtractor(ILogger<FeatureExtractor> logger)
+        private readonly IEnumerable<string> _testCaseAttributes = new[]
+        {
+            Constants.MsTestTestPropertyAttribute
+        };
+
+        private const string ParameterDeclarationSplit = "Parameter\\:.*";
+
+        public MsTestScenarioExtractor(ILogger<FeatureExtractor> logger)
         {
             _logger = logger;
         }
@@ -34,15 +29,13 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
         public bool IsApplicable(MethodDefinition method)
         {
             return
+                method.IsVirtual ||
                 method
                     .CustomAttributes
                     .Any(
                         o =>
-                            XOrNUnitTestAttributeValues
-                                .Contains(
-                                    o
-                                        .AttributeType.FullName
-                                )
+                            o
+                                .AttributeType.FullName == Constants.MsTestTestAttribute
                     );
         }
 
@@ -57,11 +50,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             var scenarioArgumentNames = new Dictionary<string, string>();
             var scenarioArgumentValues = new List<IEnumerable<object>>();
 
-            var testCases =
-                method
-                    .CustomAttributes
-                    .Count(o => _testCaseAttributes.Contains(o.AttributeType.FullName));
-
             foreach (var instruction in
                      method
                          .Body
@@ -74,7 +62,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                     {
                         var currInstr =
                             instruction
-                                .StepPrevious(5);
+                                .StepPrevious(4);
 
                         if (currInstr.OpCode == OpCodes.Ldstr)
                         {
@@ -94,12 +82,37 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                                 currInstr
                                     .Operand
                                     .ToString();
-                                                
+
                             _logger
                                 .LogInformation($"Extracted scenario: [{title}]");
                         }
 
-                        // Extract test cases
+                        var testCaseFunctions =
+                            type
+                                .Methods
+                                .Where(
+                                    x =>
+                                        x.Body
+                                            .Instructions
+                                            .Any(
+                                                o =>
+                                                {
+                                                    if (o.OpCode == OpCodes.Callvirt && o.Operand is MethodReference methodReference)
+                                                    {
+                                                        var methodName = methodReference.Name;
+                                                        return methodName == method.Name;
+                                                    }
+
+                                                    return false;
+                                                }
+                                            )
+                                )
+                                .ToList();
+
+                        var testCases =
+                            testCaseFunctions
+                                .Count;
+
                         if (testCases > 0)
                         {
                             _logger
@@ -107,8 +120,14 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
                             var buildConfigurations = new List<Tuple<int, int>>
                             {
-                                new(3, 5), // debug
-                                new(2, 4)  // release
+                                new(
+                                    3,
+                                    5
+                                ), // debug
+                                new(
+                                    2,
+                                    4
+                                ) // release
                             };
 
                             var startingInstruction = currInstr;
@@ -116,7 +135,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             foreach (var buildConfiguration in buildConfigurations)
                             {
                                 currInstr = startingInstruction;
-                                
+
                                 // Get test case argument names
                                 currInstr =
                                     currInstr
@@ -176,93 +195,74 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             }
 
                             if (scenarioArgumentNames.Count == 0)
-                                throw new Exception("Could not extract test cases from assembly; please try again with a different build configuration");
+                                throw new Exception(
+                                    "Could not extract test cases from assembly; please try again with a different build configuration"
+                                );
 
                             currInstr =
                                 currInstr
                                     .StepPrevious(15);
 
                             // Get test case argument values
-                            var caseAttributes =
-                                method
-                                    .CustomAttributes
-                                    .Where(o => _testCaseAttributes.Contains(o.AttributeType.FullName))
-                                    .ToList();
-
-                            foreach (var caseAttribute in caseAttributes)
+                            foreach (var testCaseFunction in testCaseFunctions)
                             {
-                                var constructorArguments =
-                                    caseAttribute
-                                        .ConstructorArguments;
+                                var specFlowArguments = new List<SpecFlowArgument>();
+                                var caseAttributes =
+                                    testCaseFunction
+                                        .CustomAttributes
+                                        .Where(o => _testCaseAttributes.Contains(o.AttributeType.FullName))
+                                        .ToList();
 
-                                if (constructorArguments.Count == 1)
+                                foreach (var caseAttribute in caseAttributes)
                                 {
-                                    var constructorArgument = constructorArguments[0];
-                                    if (constructorArgument.Type.IsArray)
+                                    var constructorArguments =
+                                        caseAttribute
+                                            .ConstructorArguments;
+
+                                    if (constructorArguments.Count == 2)
                                     {
-                                        if (constructorArgument.Value is CustomAttributeArgument[] args)
+                                        var parameterNameArg = 
+                                            constructorArguments[0]
+                                                .Value
+                                                .ToString();
+                                        
+                                        var fieldMatch =
+                                            new Regex(ParameterDeclarationSplit)
+                                                .Matches(parameterNameArg);
+
+                                        if (fieldMatch.Count > 0)
                                         {
-                                            var values =
-                                                args
-                                                    .Select(
-                                                        o =>
-                                                        {
-                                                            if (o.Value is CustomAttributeArgument ca)
-                                                            {
-                                                                return
-                                                                    ca
-                                                                        .Value?
-                                                                        .ToString();
-                                                            }
+                                            var argName =
+                                                fieldMatch[0]
+                                                    .Value
+                                                    .Split(":")
+                                                    [1];
 
-                                                            return null;
-                                                        }
-                                                    )
-                                                    .ToList();
-
-                                            scenarioArgumentValues
-                                                .Add(values);
+                                            var argValue = 
+                                                constructorArguments[1]
+                                                    .Value
+                                                    .ToString();
+                                            
+                                            specFlowArguments
+                                                .Add(new SpecFlowArgument
+                                                    {
+                                                        ArgumentName = argName,
+                                                        ArgumentValue = argValue
+                                                    }
+                                                );
                                         }
                                     }
                                 }
-                            }
-
-                            scenarioArgumentNames =
-                                scenarioArgumentNames
-                                    .Reverse()
-                                    .ToDictionary(
-                                        o => o.Key,
-                                        o => o.Value
-                                    );
-
-                            for (var i = 0; i < scenarioArgumentValues.Count; i++)
-                            {
-                                var argumentList =
-                                    scenarioArgumentNames
-                                        .Select(
-                                            o =>
-                                                new SpecFlowArgument
-                                                {
-                                                    ArgumentName = o.Value,
-                                                    ArgumentValue =
-                                                        scenarioArgumentValues[i]
-                                                            .ElementAt(
-                                                                scenarioArgumentNames
-                                                                    .Keys
-                                                                    .ToList()
-                                                                    .IndexOf(o.Key)
-                                                            )
-                                                }
-                                        )
-                                        .ToList();
 
                                 var scenarioCase = new SpecFlowCase
                                 {
-                                    Arguments = argumentList
+                                    Arguments = specFlowArguments
                                 };
                                 
                                 _logger
-                                    .LogInformation($"Extracted test case: {{{string.Join(", ", scenarioCase.Arguments.Select(o => $"\"{o.ArgumentName}\":\"{o.ArgumentValue}\""))}}}");
+                                    .LogInformation(
+                                        $"Extracted test case: {{{string.Join(", ", scenarioCase.Arguments.Select(o => $"\"{o.ArgumentName}\":\"{o.ArgumentValue}\""))}}}"
+                                    );
 
                                 scenarioCases
                                     .Add(scenarioCase);
@@ -414,7 +414,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             Keyword = keyword,
                             Text = text
                         };
-                        
+
                         _logger
                             .LogInformation($"Extracted test step [{executionStep.Keyword} {executionStep.Text}]");
 
