@@ -157,7 +157,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
         private bool IsDebugBuild(ICustomAttributeProvider assembly)
         {
             _logger
-                .LogDebug($"Loading custom attributes for assembly");
+                .LogInformation($"Loading custom attributes for assembly");
 
             var customAttributes =
                 (assembly?
@@ -165,7 +165,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                 .ToList();
             
             _logger
-                .LogDebug($"Custom attributes loaded [{customAttributes.Count}]");
+                .LogInformation($"Custom attributes loaded [{customAttributes.Count}]");
 
             var debuggableAttribute =
                 customAttributes
@@ -174,7 +174,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
             if (debuggableAttribute != null)
             {
                 _logger
-                    .LogDebug($"DebuggableAttribute found");
+                    .LogInformation($"DebuggableAttribute found");
                 
                 var debuggingMode =
                     (debuggableAttribute
