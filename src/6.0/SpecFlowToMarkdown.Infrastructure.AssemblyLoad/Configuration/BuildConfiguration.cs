@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Configuration
+namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Configuration
 {
     public class BuildConfiguration : IBuildConfiguration
     {

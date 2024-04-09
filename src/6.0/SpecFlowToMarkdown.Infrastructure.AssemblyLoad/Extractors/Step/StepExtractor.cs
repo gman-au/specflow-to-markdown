@@ -4,9 +4,10 @@ using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
-using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extensions;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Utils;
 
-namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
+namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Step
 {
     public class StepExtractor : IStepExtractor
     {

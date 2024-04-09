@@ -2,6 +2,7 @@
 using SpecFlowToMarkdown.Domain;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Feature;
 using SpecFlowToMarkdown.Infrastructure.Io;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad
@@ -35,7 +36,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad
 
             var result =
                 _featureExtractor
-                    .ExtractFeatures(assembly);
+                    .Perform(assembly);
 
             return result;
         }

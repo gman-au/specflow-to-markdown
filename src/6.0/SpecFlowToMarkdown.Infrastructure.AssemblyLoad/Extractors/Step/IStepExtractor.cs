@@ -2,7 +2,7 @@
 using Mono.Cecil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 
-namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
+namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Step
 {
     public interface IStepExtractor
     {

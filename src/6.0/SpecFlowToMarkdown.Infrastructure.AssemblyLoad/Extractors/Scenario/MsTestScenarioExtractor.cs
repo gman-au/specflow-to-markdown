@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
-using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extensions;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Feature;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Step;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Utils;
 
-namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
+namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
 {
     public class MsTestScenarioExtractor : IScenarioExtractor
     {
@@ -47,7 +49,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                     );
         }
 
-        public SpecFlowScenario ExtractScenario(MethodDefinition method, TypeDefinition type)
+        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type)
         {
             // Extract Scenario
             var title = string.Empty;

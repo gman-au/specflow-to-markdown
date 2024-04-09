@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mono.Cecil.Cil;
-using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Configuration;
-using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Configuration;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extensions;
 
 namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 {

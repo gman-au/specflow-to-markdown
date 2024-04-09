@@ -1,12 +1,12 @@
 ﻿using Mono.Cecil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
 
-namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
+namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
 {
     public interface IScenarioExtractor
     {
         public bool IsApplicable(MethodDefinition method);
 
-        public SpecFlowScenario ExtractScenario(MethodDefinition method, TypeDefinition type);
+        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type);
     }
 }
