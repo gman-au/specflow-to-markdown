@@ -13,6 +13,8 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
     public class MsTestScenarioExtractor : IScenarioExtractor
     {
         private readonly ILogger<FeatureExtractor> _logger;
+        private readonly IStepExtractor _stepExtractor;
+        private readonly IScenarioArgumentBuilder _scenarioArgumentBuilder;
 
         private readonly IEnumerable<string> _testCaseAttributes = new[]
         {
@@ -21,9 +23,15 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
 
         private const string ParameterDeclarationSplit = "Parameter\\:.*";
 
-        public MsTestScenarioExtractor(ILogger<FeatureExtractor> logger)
+        public MsTestScenarioExtractor(
+            ILogger<FeatureExtractor> logger, 
+            IStepExtractor stepExtractor, 
+            IScenarioArgumentBuilder scenarioArgumentBuilder
+        )
         {
             _logger = logger;
+            _stepExtractor = stepExtractor;
+            _scenarioArgumentBuilder = scenarioArgumentBuilder;
         }
 
         public bool IsApplicable(MethodDefinition method)
@@ -48,7 +56,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             var scenarioCases = new List<SpecFlowCase>();
 
             var scenarioArgumentNames = new Dictionary<string, string>();
-            var scenarioArgumentValues = new List<IEnumerable<object>>();
 
             foreach (var instruction in
                      method
@@ -118,86 +125,9 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
                             _logger
                                 .LogInformation($"Scenario [{title}]; found {testCases} test cases");
 
-                            var buildConfigurations = new List<Tuple<int, int>>
-                            {
-                                new(
-                                    3,
-                                    5
-                                ), // debug
-                                new(
-                                    2,
-                                    4
-                                ) // release
-                            };
-
-                            var startingInstruction = currInstr;
-
-                            foreach (var buildConfiguration in buildConfigurations)
-                            {
-                                currInstr = startingInstruction;
-
-                                // Get test case argument names
-                                currInstr =
-                                    currInstr
-                                        .StepPrevious(buildConfiguration.Item1);
-
-                                while (true)
-                                {
-                                    string argKey = null;
-                                    string argValue = null;
-
-                                    if (currInstr.OpCode == OpCodes.Ldarg_S)
-                                    {
-                                        argKey =
-                                            currInstr
-                                                .Operand
-                                                .ToString();
-                                    }
-                                    else if (currInstr.OpCode == OpCodes.Ldarg_3)
-                                        argKey = "3";
-                                    else if (currInstr.OpCode == OpCodes.Ldarg_2)
-                                        argKey = "2";
-                                    else if (currInstr.OpCode == OpCodes.Ldarg_1)
-                                        argKey = "1";
-                                    else if (currInstr.OpCode == OpCodes.Ldarg_0)
-                                        argKey = "0";
-
-                                    var stringLoadInstruction =
-                                        currInstr
-                                            .Previous;
-
-                                    if (stringLoadInstruction.OpCode == OpCodes.Ldstr)
-                                    {
-                                        argValue =
-                                            stringLoadInstruction
-                                                .Operand
-                                                .ToString();
-                                    }
-
-                                    if (!string.IsNullOrEmpty(argKey) && !string.IsNullOrEmpty(argValue))
-                                    {
-                                        scenarioArgumentNames
-                                            .Add(
-                                                argKey,
-                                                argValue
-                                            );
-
-                                        currInstr =
-                                            currInstr
-                                                .StepPrevious(buildConfiguration.Item2);
-                                    }
-                                    else
-                                        break;
-                                }
-
-                                if (scenarioArgumentNames.Count > 0)
-                                    break;
-                            }
-
-                            if (scenarioArgumentNames.Count == 0)
-                                throw new Exception(
-                                    "Could not extract test cases from assembly; please try again with a different build configuration"
-                                );
+                            scenarioArgumentNames = 
+                                _scenarioArgumentBuilder
+                                    .Build(currInstr);
 
                             currInstr =
                                 currInstr
@@ -305,124 +235,12 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers
             };
 
             // Extract Steps
-            var scenarioSteps = new List<SpecFlowExecutionStep>();
-
-            foreach (var instruction in
-                     method
-                         .Body
-                         .Instructions
-                         .Where(o => o.OpCode == OpCodes.Callvirt))
-            {
-                if (instruction.Operand is MethodReference methodReference)
-                {
-                    if (Constants.ScenarioStepFunctions.Any(o => methodReference.Name == o))
-                    {
-                        var keyword = methodReference.Name;
-                        var text = string.Empty;
-
-                        var currInstr =
-                            instruction
-                                .StepPrevious(4);
-
-                        if (currInstr.OpCode == OpCodes.Ldstr)
-                        {
-                            text =
-                                currInstr
-                                    .Operand
-                                    .ToString();
-                        }
-                        else if (currInstr.OpCode == OpCodes.Call)
-                        {
-                            if (currInstr.Operand is MethodReference mr)
-                            {
-                                if (mr.Name == Constants.StringFormatFunctionName)
-                                {
-                                    var stringFormatArguments = new List<string>();
-                                    string preFormatText = null;
-
-                                    while (true)
-                                    {
-                                        string argKey = null;
-
-                                        currInstr =
-                                            currInstr
-                                                .Previous;
-
-                                        if (currInstr.OpCode == OpCodes.Ldarg_S)
-                                        {
-                                            argKey =
-                                                currInstr
-                                                    .Operand
-                                                    .ToString();
-                                        }
-                                        else if (currInstr.OpCode == OpCodes.Ldarg_3)
-                                            argKey = "3";
-                                        else if (currInstr.OpCode == OpCodes.Ldarg_2)
-                                            argKey = "2";
-                                        else if (currInstr.OpCode == OpCodes.Ldarg_1)
-                                            argKey = "1";
-                                        else if (currInstr.OpCode == OpCodes.Ldarg_0)
-                                            argKey = "0";
-                                        else if (currInstr.OpCode == OpCodes.Ldstr)
-                                            preFormatText =
-                                                currInstr
-                                                    .Operand
-                                                    .ToString();
-
-                                        if (string.IsNullOrEmpty(argKey))
-                                            break;
-
-                                        if (scenarioArgumentNames.TryGetValue(
-                                                argKey,
-                                                out var argumentName
-                                            ))
-                                        {
-                                            stringFormatArguments
-                                                .Add($"&lt;{argumentName}&gt;");
-                                        }
-                                    }
-
-                                    if (!string.IsNullOrEmpty(preFormatText) && stringFormatArguments.Any())
-                                    {
-                                        stringFormatArguments
-                                            .Reverse();
-
-                                        text =
-                                            string
-                                                .Format(
-                                                    preFormatText,
-                                                    stringFormatArguments
-                                                        .ToArray()
-                                                );
-                                    }
-                                }
-                                else
-                                {
-                                    if (currInstr.OpCode == OpCodes.Ldstr)
-                                    {
-                                        text =
-                                            currInstr
-                                                .Operand
-                                                .ToString();
-                                    }
-                                }
-                            }
-                        }
-
-                        var executionStep = new SpecFlowExecutionStep
-                        {
-                            Keyword = keyword,
-                            Text = text
-                        };
-
-                        _logger
-                            .LogInformation($"Extracted test step [{executionStep.Keyword} {executionStep.Text}]");
-
-                        scenarioSteps
-                            .Add(executionStep);
-                    }
-                }
-            }
+            var scenarioSteps =
+                _stepExtractor
+                    .Perform(
+                        method,
+                        scenarioArgumentNames
+                    );
 
             scenario.Steps = scenarioSteps;
             scenario.Cases = scenarioCases;
