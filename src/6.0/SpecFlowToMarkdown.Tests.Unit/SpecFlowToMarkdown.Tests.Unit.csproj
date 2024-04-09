@@ -20,6 +20,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.AssemblyLoad\SpecFlowToMarkdown.Infrastructure.AssemblyLoad.csproj"/>
+        <ProjectReference Include="..\SpecFlowToMarkdown.Infrastructure.Markdown\SpecFlowToMarkdown.Infrastructure.Markdown.csproj" />
     </ItemGroup>
 
 </Project>
