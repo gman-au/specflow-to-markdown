@@ -5,6 +5,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Configuration
 {
     public interface IBuildConfiguration
     {
-        public IEnumerable<Tuple<int, int, int>> Get();
+        public IEnumerable<Tuple<string, int, int, int>> Get();
     }
 }

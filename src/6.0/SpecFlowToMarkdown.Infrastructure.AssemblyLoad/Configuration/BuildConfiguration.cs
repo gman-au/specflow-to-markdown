@@ -5,16 +5,18 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Configuration
 {
     public class BuildConfiguration : IBuildConfiguration
     {
-        public IEnumerable<Tuple<int, int, int>> Get()
+        public IEnumerable<Tuple<string, int, int, int>> Get()
         {
-            var buildConfigurations = new List<Tuple<int, int, int>>
+            var buildConfigurations = new List<Tuple<string, int, int, int>>
             {
                 new(
+                    "Debug",
                     3,
                     5,
                     30
                 ), // debug
                 new(
+                    "Release",
                     2,
                     4,
                     19

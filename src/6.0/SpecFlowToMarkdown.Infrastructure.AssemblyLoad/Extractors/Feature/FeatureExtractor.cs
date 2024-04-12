@@ -30,6 +30,8 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Feature
                 assembly
                     .Name
                     .Name;
+
+            var inferredBuildConfiguration = "Unknown";
             
             _logger
                 .LogInformation($"Assembly name: [{assemblyName}]");
@@ -143,7 +145,8 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Feature
                                         applicableExtractor
                                             .Perform(
                                                 typeMethod,
-                                                type
+                                                type,
+                                                ref inferredBuildConfiguration
                                             );
 
                                     scenarios
@@ -162,6 +165,8 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Feature
 
             result.Features = resultFeatures;
 
+            result.BuildConfiguration = inferredBuildConfiguration;
+            
             return result;
         }
     }

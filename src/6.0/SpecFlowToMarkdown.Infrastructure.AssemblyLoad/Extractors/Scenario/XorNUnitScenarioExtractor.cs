@@ -60,7 +60,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
                     );
         }
 
-        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type)
+        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type, ref string environment)
         {
             // Extract Scenario
             var title = string.Empty;
@@ -227,10 +227,13 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
                         
                         currInstr =
                             currInstr
-                                .StepPrevious(buildConfiguration.Item3);
+                                .StepPrevious(buildConfiguration.Item4);
 
-                        if (currInstr?.OpCode == OpCodes.Ldstr)
-                            break;
+                        if (currInstr?.OpCode != OpCodes.Ldstr)
+                            continue;
+
+                        environment = buildConfiguration.Item1;
+                        break;
                     }
                 }
                 else

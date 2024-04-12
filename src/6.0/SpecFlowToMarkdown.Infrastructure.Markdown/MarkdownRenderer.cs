@@ -44,7 +44,8 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 
             // Render header
             headerBuilder
-                .AppendLine($"# {assembly.AssemblyName}");
+                .AppendLine($"# {assembly.AssemblyName}")
+                .AppendLine($"##### *Build configuration: {assembly.BuildConfiguration}*");
 
             headerBuilder
                 .AppendLine("<table>")

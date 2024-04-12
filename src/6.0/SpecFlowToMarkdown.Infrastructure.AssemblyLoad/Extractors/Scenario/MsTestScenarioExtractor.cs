@@ -15,22 +15,21 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
 {
     public class MsTestScenarioExtractor : IScenarioExtractor
     {
-        private readonly ILogger<FeatureExtractor> _logger;
-        private readonly IStepExtractor _stepExtractor;
-        private readonly IScenarioArgumentBuilder _scenarioArgumentBuilder;
+        private const string ParameterDeclarationSplit = "Parameter\\:.*";
         private readonly IBuildConfiguration _buildConfiguration;
+        private readonly ILogger<FeatureExtractor> _logger;
+        private readonly IScenarioArgumentBuilder _scenarioArgumentBuilder;
+        private readonly IStepExtractor _stepExtractor;
 
         private readonly IEnumerable<string> _testCaseAttributes = new[]
         {
             Constants.MsTestTestPropertyAttribute
         };
 
-        private const string ParameterDeclarationSplit = "Parameter\\:.*";
-
         public MsTestScenarioExtractor(
-            ILogger<FeatureExtractor> logger, 
-            IStepExtractor stepExtractor, 
-            IScenarioArgumentBuilder scenarioArgumentBuilder, 
+            ILogger<FeatureExtractor> logger,
+            IStepExtractor stepExtractor,
+            IScenarioArgumentBuilder scenarioArgumentBuilder,
             IBuildConfiguration buildConfiguration
         )
         {
@@ -53,7 +52,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
                     );
         }
 
-        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type)
+        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type, ref string environment)
         {
             // Extract Scenario
             var title = string.Empty;
@@ -131,7 +130,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
                             _logger
                                 .LogInformation($"Scenario [{title}]; found {testCases} test cases");
 
-                            scenarioArgumentNames = 
+                            scenarioArgumentNames =
                                 _scenarioArgumentBuilder
                                     .Build(currInstr);
 
@@ -157,11 +156,11 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
 
                                     if (constructorArguments.Count == 2)
                                     {
-                                        var parameterNameArg = 
+                                        var parameterNameArg =
                                             constructorArguments[0]
                                                 .Value
                                                 .ToString();
-                                        
+
                                         var fieldMatch =
                                             new Regex(ParameterDeclarationSplit)
                                                 .Matches(parameterNameArg);
@@ -174,13 +173,14 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
                                                     .Split(":")
                                                     [1];
 
-                                            var argValue = 
+                                            var argValue =
                                                 constructorArguments[1]
                                                     .Value
                                                     .ToString();
-                                            
+
                                             specFlowArguments
-                                                .Add(new SpecFlowArgument
+                                                .Add(
+                                                    new SpecFlowArgument
                                                     {
                                                         ArgumentName = argName,
                                                         ArgumentValue = argValue
@@ -194,7 +194,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
                                 {
                                     Arguments = specFlowArguments
                                 };
-                                
+
                                 _logger
                                     .LogInformation(
                                         $"Extracted test case: {{{string.Join(", ", scenarioCase.Arguments.Select(o => $"\"{o.ArgumentName}\":\"{o.ArgumentValue}\""))}}}"
@@ -203,19 +203,22 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
                                 scenarioCases
                                     .Add(scenarioCase);
                             }
-                            
+
                             var startingInstruction = currInstr;
-                    
+
                             foreach (var buildConfiguration in _buildConfiguration.Get())
                             {
                                 currInstr = startingInstruction;
-                        
+
                                 currInstr =
                                     currInstr
-                                        .StepPrevious(buildConfiguration.Item3);
+                                        .StepPrevious(buildConfiguration.Item4);
 
-                                if (currInstr?.OpCode == OpCodes.Ldstr)
-                                    break;
+                                if (currInstr?.OpCode != OpCodes.Ldstr)
+                                    continue;
+
+                                environment = buildConfiguration.Item1;
+                                break;
                             }
                         }
                         else

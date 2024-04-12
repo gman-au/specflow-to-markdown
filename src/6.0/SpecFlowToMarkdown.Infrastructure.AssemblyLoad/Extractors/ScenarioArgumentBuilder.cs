@@ -27,7 +27,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
                 // Get test case argument names
                 currInstr =
                     currInstr
-                        .StepPrevious(buildConfiguration.Item1);
+                        .StepPrevious(buildConfiguration.Item2);
 
                 while (true)
                 {
@@ -72,7 +72,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
 
                         currInstr =
                             currInstr
-                                .StepPrevious(buildConfiguration.Item2);
+                                .StepPrevious(buildConfiguration.Item3);
                     }
                     else
                         break;

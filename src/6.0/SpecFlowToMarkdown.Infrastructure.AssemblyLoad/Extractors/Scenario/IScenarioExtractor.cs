@@ -7,6 +7,6 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
     {
         public bool IsApplicable(MethodDefinition method);
 
-        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type);
+        public SpecFlowScenario Perform(MethodDefinition method, TypeDefinition type, ref string environment);
     }
 }
