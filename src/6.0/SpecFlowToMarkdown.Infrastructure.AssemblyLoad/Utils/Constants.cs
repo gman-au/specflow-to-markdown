@@ -1,7 +1,11 @@
-﻿namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors
+﻿namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Utils
 {
     internal static class Constants
     {
+        public const string CustomFeatureAttributeValue = "TechTalk.SpecFlow";
+        public const string FeatureSetupMethodName = "FeatureSetup";
+        public const string FeatureInfoTypeName = "TechTalk.SpecFlow.FeatureInfo";
+        
         public const string MsTestTestAttribute = "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute";
         public const string NUnitTestAttribute = "NUnit.Framework.TestAttribute";
         public const string XUnitFactAttribute = "Xunit.SkippableFactAttribute";

@@ -2,8 +2,11 @@
 using Microsoft.Extensions.Logging;
 using SpecFlowToMarkdown.Application;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Configuration;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors;
-using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Providers;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Feature;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Step;
 using SpecFlowToMarkdown.Infrastructure.Io;
 using SpecFlowToMarkdown.Infrastructure.Markdown;
 using SpecFlowToMarkdown.Infrastructure.Parsing.Arguments;
@@ -21,9 +24,11 @@ namespace SpecFlowToMarkdown.Tool
                 .AddSingleton<ISpecFlowApplication, SpecFlowApplication>()
                 .AddSingleton<IAssemblyScanner, AssemblyScanner>()
                 .AddSingleton<IFeatureExtractor, FeatureExtractor>()
-                .AddSingleton<IScenarioExtractionHandler, ScenarioExtractionHandler>()
-                .AddSingleton<IScenarioExtractor, UnitScenarioExtractor>()
+                .AddSingleton<IScenarioArgumentBuilder, ScenarioArgumentBuilder>()
+                .AddSingleton<IScenarioExtractor, XorNUnitScenarioExtractor>()
                 .AddSingleton<IScenarioExtractor, MsTestScenarioExtractor>()
+                .AddSingleton<IBuildConfiguration, BuildConfiguration>()
+                .AddSingleton<IStepExtractor, StepExtractor>()
                 .AddSingleton<IFileWriter, FileWriter>()
                 .AddSingleton<IFileFinder, FileFinder>()
                 .AddSingleton<IMarkdownRenderer, MarkdownRenderer>()

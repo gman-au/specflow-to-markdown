@@ -1,6 +1,6 @@
 ﻿using Mono.Cecil.Cil;
 
-namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Extensions
+namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extensions
 {
     internal static class InstructionEx
     {

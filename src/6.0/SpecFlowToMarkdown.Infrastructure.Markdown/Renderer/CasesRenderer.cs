@@ -135,6 +135,9 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Renderer
                         .AppendLine(
                             $"<h4> :{caseStatus.ToStatusIcon()}: <a id=\"{caseAnchor}\">Case #{caseIndex}</a></h4>"
                         );
+                    
+                    contentBuilder
+                        .AppendTags(specFlowScenario);
 
                     contentBuilder
                         .Append(argumentsBuilder);

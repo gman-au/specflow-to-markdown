@@ -31,7 +31,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
                 .AppendLine("\t\t\t\t'yAxisTickColor': \"#fff\",")
                 .AppendLine("\t\t\t\t'yAxisLineColor': \"#fff\",")
                 .AppendLine($"\t\t\t\t'backgroundColor': \"#0000\",")
-                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.OtherColourSolid}, {ColourSorter.PassColourSolid}, {ColourSorter.FailColourSolid}\"");
+                .AppendLine($"\t\t\t\t'plotColorPalette': \"{ColourSorter.PassColourSolid}, {ColourSorter.FailColourSolid}, {ColourSorter.OtherColourSolid}\"");
 
             stringBuilder
                 .AppendLine("\t\t\t}")
@@ -54,25 +54,28 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown.Extensions
 
             var values = results.Values;
             
-            var totalValues = string.Join(
+            // Reworked slightly to a 'stacked' chart instead of a standard bar chart.
+            // The next value in the series will be a concurrent sum so as not to 'overlap'.
+            // Successes first, then failures, then other.
+            var successValues = string.Join(
                 ", ",
                 values.Select(o => o.Successes + o.Failures + o.Others)
             );
 
-            var successValues = string.Join(
-                ", ",
-                values.Select(o => o.Successes)
-            );
-
             var failureValues = string.Join(
                 ", ",
-                values.Select(o => o.Failures)
+                values.Select(o => o.Failures + o.Others)
+            );
+            
+            var otherValues = string.Join(
+                ", ",
+                values.Select(o => o.Others)
             );
 
             stringBuilder
-                .AppendLine($"bar [{totalValues}]")
                 .AppendLine($"bar [{successValues}]")
-                .AppendLine($"bar [{failureValues}]");
+                .AppendLine($"bar [{failureValues}]")
+                .AppendLine($"bar [{otherValues}]");
 
             stringBuilder
                 .AppendLine("```");
