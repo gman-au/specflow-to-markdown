@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SpecFlowToMarkdown.Domain.TestAssembly;
+using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Configuration;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extensions;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Feature;
 using SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Step;
@@ -23,6 +24,7 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
         private readonly ILogger<FeatureExtractor> _logger;
         private readonly IScenarioArgumentBuilder _scenarioArgumentBuilder;
         private readonly IStepExtractor _stepExtractor;
+        private readonly IBuildConfiguration _buildConfiguration;
 
         private readonly IEnumerable<string> _testCaseAttributes = new[]
         {
@@ -33,12 +35,14 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
         public XorNUnitScenarioExtractor(
             ILogger<FeatureExtractor> logger,
             IStepExtractor stepExtractor,
-            IScenarioArgumentBuilder scenarioArgumentBuilder
+            IScenarioArgumentBuilder scenarioArgumentBuilder, 
+            IBuildConfiguration buildConfiguration
         )
         {
             _logger = logger;
             _stepExtractor = stepExtractor;
             _scenarioArgumentBuilder = scenarioArgumentBuilder;
+            _buildConfiguration = buildConfiguration;
         }
 
         public bool IsApplicable(MethodDefinition method)
@@ -213,6 +217,20 @@ namespace SpecFlowToMarkdown.Infrastructure.AssemblyLoad.Extractors.Scenario
 
                         scenarioCases
                             .Add(scenarioCase);
+                    }
+
+                    var startingInstruction = currInstr;
+                    
+                    foreach (var buildConfiguration in _buildConfiguration.Get())
+                    {
+                        currInstr = startingInstruction;
+                        
+                        currInstr =
+                            currInstr
+                                .StepPrevious(buildConfiguration.Item3);
+
+                        if (currInstr?.OpCode == OpCodes.Ldstr)
+                            break;
                     }
                 }
                 else

@@ -91,7 +91,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 Others =
                     executionResults
                         .Count(o => o.Status != StatusOk && o.Status != StatusError),
-                Duration = 
+                Duration =
                     executionResults
                         .Sum(o => o.StepResults.Sum(x => x.Duration.GetValueOrDefault().TotalSeconds))
             };
@@ -116,7 +116,7 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                 Others =
                     stepResults
                         .Count(o => o.Status != StatusOk && o.Status != StatusError),
-                Duration = 
+                Duration =
                     stepResults
                         .Sum(o => o.Duration.GetValueOrDefault().TotalSeconds)
             };
@@ -151,27 +151,40 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
 
                     foreach (var taggedScenario in allTaggedScenarios)
                     {
-                        var executionResult =
-                            execution
-                                .ExecutionResults
-                                .FirstOrDefault(
-                                    o => o.FeatureTitle == feature.Title &&
-                                        o.ScenarioTitle == taggedScenario.Title
-                                );
-
-                        if (executionResult != null)
+                        foreach (var taggedCase in
+                                 (taggedScenario.Cases ?? new List<SpecFlowCase>()).Any()
+                                     ? taggedScenario.Cases
+                                     : new List<SpecFlowCase> { new() })
                         {
-                            switch (executionResult.Status.ToStatusEnum())
+                            var executionResult =
+                                execution
+                                    .ExecutionResults
+                                    .FirstOrDefault(
+                                        o =>
+                                        {
+                                            return o.FeatureTitle == feature.Title &&
+                                                o.ScenarioTitle == taggedScenario.Title &&
+                                                MatchesTestCase(
+                                                    taggedCase?.Arguments?.ToList(),
+                                                    o.ScenarioArguments.ToList()
+                                                );
+                                        }
+                                    );
+
+                            if (executionResult != null)
                             {
-                                case TestStatusEnum.Success:
-                                    result.Successes++;
-                                    break;
-                                case TestStatusEnum.Failure:
-                                    result.Failures++;
-                                    break;
-                                default:
-                                    result.Others++;
-                                    break;
+                                switch (executionResult.Status.ToStatusEnum())
+                                {
+                                    case TestStatusEnum.Success:
+                                        result.Successes++;
+                                        break;
+                                    case TestStatusEnum.Failure:
+                                        result.Failures++;
+                                        break;
+                                    default:
+                                        result.Others++;
+                                        break;
+                                }
                             }
                         }
                     }
@@ -199,6 +212,19 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
             if (others > 0) return TestStatusEnum.Other;
             if (successes > 0) return TestStatusEnum.Success;
             return TestStatusEnum.Other;
+        }
+
+        private static bool MatchesTestCase(ICollection<SpecFlowArgument> taggedCaseArguments, ICollection<string> scenarioArguments)
+        {
+            if (taggedCaseArguments == null) return true;
+            var isMatch = true;
+
+            for (var i = 0; i < scenarioArguments.Count(); i++)
+            {
+                isMatch &= scenarioArguments.ElementAt(i) == taggedCaseArguments.ElementAt(i).ArgumentValue.ToString();
+            }
+
+            return isMatch;
         }
     }
 }

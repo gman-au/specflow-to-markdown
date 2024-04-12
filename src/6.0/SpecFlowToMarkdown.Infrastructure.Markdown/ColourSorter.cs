@@ -9,9 +9,9 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
         public const string PassColourTransparent = "#16c60c88";
         public const string FailColourTransparent = "#f03a1788";
         public const string OtherColourTransparent = "#fff8";
-        public const string PassColourSolid = "#676a6d";
-        public const string FailColourSolid = "#105512";
-        public const string OtherColourSolid = "#622116";
+        public const string PassColourSolid = "#105512";
+        public const string FailColourSolid = "#622116";
+        public const string OtherColourSolid = "#676a6d";
 
         public ICollection<ChartLegendItem> Sort(int passCount, int failCount, int otherCount)
         {
