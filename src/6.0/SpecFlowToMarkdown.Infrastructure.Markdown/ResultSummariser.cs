@@ -90,7 +90,10 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         .Count(o => o.Status == StatusError),
                 Others =
                     executionResults
-                        .Count(o => o.Status != StatusOk && o.Status != StatusError)
+                        .Count(o => o.Status != StatusOk && o.Status != StatusError),
+                Duration = 
+                    executionResults
+                        .Sum(o => o.StepResults.Sum(x => x.Duration.GetValueOrDefault().TotalSeconds))
             };
         }
 
@@ -112,7 +115,10 @@ namespace SpecFlowToMarkdown.Infrastructure.Markdown
                         .Count(o => o.Status == StatusError),
                 Others =
                     stepResults
-                        .Count(o => o.Status != StatusOk && o.Status != StatusError)
+                        .Count(o => o.Status != StatusOk && o.Status != StatusError),
+                Duration = 
+                    stepResults
+                        .Sum(o => o.Duration.GetValueOrDefault().TotalSeconds)
             };
         }
 

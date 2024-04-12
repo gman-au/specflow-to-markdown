@@ -14,6 +14,14 @@ namespace SpecFlowToMarkdown.Tests.Unit
             1000
         );
         
+        private static readonly TimeSpan TwoSeconds = new(
+            0,
+            0,
+            0,
+            0,
+            2000
+        );
+        
         public static readonly TestExecution TestRunOne = new()
         {
             ExecutionResults = new List<ExecutionResult>
@@ -33,7 +41,7 @@ namespace SpecFlowToMarkdown.Tests.Unit
                     {
                         new()
                         {
-                            Duration =OneSecond,
+                            Duration = OneSecond,
                             Status = "OK"
                         }
                     }
@@ -104,7 +112,7 @@ namespace SpecFlowToMarkdown.Tests.Unit
                     {
                         new()
                         {
-                            Duration = OneSecond,
+                            Duration = TwoSeconds,
                             Status = "Skipped"
                         },
                         new()

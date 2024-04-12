@@ -65,6 +65,7 @@ namespace SpecFlowToMarkdown.Tests.Unit
                 Assert.Equal(1, _result.Successes);
                 Assert.Equal(1, _result.Failures);
                 Assert.Equal(0, _result.Others);
+                Assert.Equal(10, _result.Duration);
             }
 
             public void AssertScenarioOneSummarisedByScenario()
@@ -72,6 +73,7 @@ namespace SpecFlowToMarkdown.Tests.Unit
                 Assert.Equal(3, _result.Successes);
                 Assert.Equal(1, _result.Failures);
                 Assert.Equal(1, _result.Others);
+                Assert.Equal(10, _result.Duration);
             }
 
             public void AssertScenarioOneSummarisedBySteps()
@@ -79,6 +81,7 @@ namespace SpecFlowToMarkdown.Tests.Unit
                 Assert.Equal(6, _result.Successes);
                 Assert.Equal(1, _result.Failures);
                 Assert.Equal(2, _result.Others);
+                Assert.Equal(10, _result.Duration);
             }
         }
     }
